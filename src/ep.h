@@ -7,6 +7,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @brief maximal length of node variable name
 #define EP_NODE_VAR_MAX ((size_t)16)
 
@@ -143,15 +147,21 @@ typedef struct __EpParseExpressionResult {
  * @brief infix expression parsing function
  * 
  * @param[in] str text to parse
+ * 
+ * @return expression parsing result
  */
 EpParseExpressionResult epParseExpression( const char *str );
 
 /**
- * @brief node as infix expression displaying function
+ * @brief node as infix (that can be parsed by parser) expression displaying function
  * 
  * @param[in,out] out  file to print expression to
  * @param[in]     node node to display (non-null)
  */
 void epPrintExpression( FILE *out, const EpNode *node );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !defined(EP_H_)

@@ -10,6 +10,13 @@
 
 #include "ep.h"
 
+/**
+ * @brief space skipping function
+ * 
+ * @param[in] str to skip heading space in
+ * 
+ * @return str without heading spaces pointer
+ */
 static const char * epParseSkipSpaces( const char *str ) {
     while (isspace(*str))
         str++;
@@ -162,17 +169,11 @@ EpParseExpressionResult epParseExpression( const char *str ) {
         }
     }
 
-    if (*str >= 'a' && *str <= 'z' || *str >= 'A' && *str <= 'Z' || *str == '_') {
+    if (isalpha(*str)) {
         const char *first = str;
 
-        while (false
-            || *str >= 'a' && *str <= 'z'
-            || *str >= 'A' && *str <= 'Z'
-            || *str >= '0' && *str <= '9'
-            || *str == '_'
-        ) {
+        while (isalnum(*str) || *str == '_')
             str++;
-        }
 
         const char *last = str;
 

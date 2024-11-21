@@ -12,16 +12,16 @@
  * @return exit status
  */
 int main( void ) {
-    EpParseExpressionResult result = epParseExpression("((x + 3) / (1000 - 7))");
+    EpParseExpressionResult result = epParseExpression("-sin(xy^2)");
 
     if (result.status != EP_PARSE_EXPRESSION_OK)
         return 1;
     EpNode *root = result.ok.result;
 
-    epNodeDtor(root);
+    epPrintExpression(stdout, root);
+    printf("\n");
 
-    int tridcat = 30;
-    printf("CGSG FOREVER!!! %d!!!", tridcat);
+    epNodeDtor(root);
     return 0;
 } // main
 
