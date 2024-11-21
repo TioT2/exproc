@@ -10,20 +10,13 @@
 
 #include "ep.h"
 
-typedef struct __EpParseExpressionImplResult {
-    EpExpressionParsingStatus   status;
-
-    const char                * rest;
-    EpNode                    * result;
-} EpParseExpressionImplResult;
-
-const char * epParseSkipSpaces( const char *str ) {
+static const char * epParseSkipSpaces( const char *str ) {
     while (isspace(*str))
         str++;
     return str;
 } // epParseSkipSpaces
 
-EpParseExpressionImplResult epParseExpressionImpl( const char *str ) {
+EpParseExpressionResult epParseExpression( const char *str ) {
     assert(str != NULL);
 
     str = epParseSkipSpaces(str);
@@ -32,11 +25,11 @@ EpParseExpressionImplResult epParseExpressionImpl( const char *str ) {
     if (*str == '(') {
         // parse binary operator
         // parse left subexpression
-        EpParseExpressionImplResult lhs = epParseExpressionImpl(str + 1);
+        EpParseExpressionResult lhs = epParseExpression(str + 1);
 
-        if (lhs.status != EP_EXPRESSION_PARSING_OK)
-            return (EpParseExpressionImplResult) { .status = lhs.status };
-        str = epParseSkipSpaces(lhs.rest);
+        if (lhs.status != EP_PARSE_EXPRESSION_OK)
+            return lhs;
+        str = epParseSkipSpaces(lhs.ok.rest);
 
         static const struct {
             char name;
@@ -48,10 +41,89 @@ EpParseExpressionImplResult epParseExpressionImpl( const char *str ) {
             {'/', EP_BINARY_OPERATOR_DIV},
             {'^', EP_BINARY_OPERATOR_POW},
         };
+
+        EpBinaryOperator op = EP_BINARY_OPERATOR_ADD;
+        bool opFound = false;
+
+        for (uint32_t i = 0; i < sizeof(binaryOperators) / sizeof(binaryOperators[0]); i++) {
+            if (*str == binaryOperators[i].name) {
+                str++;
+
+                opFound = true;
+                op = binaryOperators[i].op;
+                break;
+            }
+        }
+
+        if (!opFound) {
+            epNodeDtor(lhs.ok.result);
+            return (EpParseExpressionResult) {
+                .status = EP_PARSE_EXPRESSION_UNKNOWN_BINARY_OPERATOR,
+                .unknownBinaryOperator = *str,
+            };
+        }
+
+        EpParseExpressionResult rhs = epParseExpression(str);
+        if (rhs.status != EP_PARSE_EXPRESSION_OK) {
+            epNodeDtor(lhs.ok.result);
+            return rhs;
+        }
+        str = epParseSkipSpaces(rhs.ok.rest);
+
+        if (*str != ')') {
+            epNodeDtor(lhs.ok.result);
+            epNodeDtor(rhs.ok.result);
+            return (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_NO_CLOSING_BRACKET };
+        }
+        str++;
+
+        EpNode *result = epNodeBinaryOperator(op, lhs.ok.result, rhs.ok.result);
+
+        if (result == NULL)
+            return (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_INTERNAL_ERROR };
+
+        return (EpParseExpressionResult) {
+            .status = EP_PARSE_EXPRESSION_OK,
+            .ok = {
+                .rest = str,
+                .result = result,
+            },
+        };
     }
 
     if (*str >= '0' && *str <= '9') {
-        // parse constant
+        uint64_t integer = *str - '0';
+        double fractional = 0.0;
+        str++;
+
+        while (*str >= '0' && *str <= '9') {
+            integer = integer * 10 + (*str - '0');
+            str++;
+        }
+
+        if (*str == '.') {
+            str++;
+            double fracExp = 1.0;
+
+            while (*str >= '0' && *str <= '9') {
+                fracExp *= 0.1;
+                fractional += fracExp * (double)(*str - '0');
+            }
+        }
+
+        // TODO Add exponent parsing support
+
+        EpNode *result = epNodeConstant(integer + fractional);
+
+        if (result == NULL) 
+            return (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_INTERNAL_ERROR };
+        return (EpParseExpressionResult) {
+            .status = EP_PARSE_EXPRESSION_OK,
+            .ok = {
+                .rest = str,
+                .result = result,
+            }
+        };
     }
 
     static const struct {
@@ -64,18 +136,76 @@ EpParseExpressionImplResult epParseExpressionImpl( const char *str ) {
     };
 
     for (uint32_t i = 0; i < sizeof(unaryOperators) / sizeof(unaryOperators[0]); i++) {
-        if (strncmp(str, unaryOperators[i].name, strlen(unaryOperators[i].name)) == 0) {
-            // parse corresponding value
+        const size_t nameLength = strlen(unaryOperators[i].name);
+
+        if (strncmp(str, unaryOperators[i].name, nameLength) == 0) {
+            str += nameLength;
+
+            EpParseExpressionResult operandParsingResult = epParseExpression(str);
+
+            if (operandParsingResult.status != EP_PARSE_EXPRESSION_OK)
+                return operandParsingResult;
+            str = operandParsingResult.ok.rest;
+
+            EpNode *result = epNodeUnaryOperator(unaryOperators[i].op, operandParsingResult.ok.result);
+
+            if (result == NULL)
+                return (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_INTERNAL_ERROR };
+
+            return (EpParseExpressionResult) {
+                .status = EP_PARSE_EXPRESSION_OK,
+                .ok = {
+                    .rest = str,
+                    .result = result,
+                },
+            };
         }
     }
 
-    assert(false && "unimplemented");
-    return {}; // TODO FINISH IMPLEMENTATION
-} // epParseExpressionImpl
+    if (*str >= 'a' && *str <= 'z' || *str >= 'A' && *str <= 'Z' || *str == '_') {
+        const char *first = str;
 
-EpExpressionParsingStatus epParseExpression( const char *str, EpNode **dst ) {
-    assert(false && "unimplemented");
-    return EP_EXPRESSION_PARSING_INTERNAL_ERROR;
-} // epParseExpression
+        while (false
+            || *str >= 'a' && *str <= 'z'
+            || *str >= 'A' && *str <= 'Z'
+            || *str >= '0' && *str <= '9'
+            || *str == '_'
+        ) {
+            str++;
+        }
+
+        const char *last = str;
+
+        const size_t length = last - first;
+
+        if (length > EP_NODE_VAR_MAX - 1)
+            return (EpParseExpressionResult) {
+                .status = EP_PARSE_EXPRESSION_TOO_LONG_VAR_NAME,
+                .tooLongVarName = {
+                    .begin = first,
+                    .end = last,
+                }
+            };
+
+        char nameBuffer[EP_NODE_VAR_MAX] = {0};
+
+        memcpy(nameBuffer, first, last - first);
+
+        EpNode *node = epNodeVariable(nameBuffer);
+        if (node == NULL)
+            return (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_INTERNAL_ERROR };
+        return (EpParseExpressionResult) {
+            .status = EP_PARSE_EXPRESSION_OK,
+            .ok = {
+                .rest = last,
+                .result = node,
+            },
+        };
+    }
+
+    return (EpParseExpressionResult) {
+        .status = EP_PARSE_EXPRESSION_UNKNOWN_EXPRESSION,
+    };
+} // epParseExpressionImpl
 
 // ep_parser.c

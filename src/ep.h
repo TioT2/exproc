@@ -5,7 +5,7 @@
 #ifndef EP_H_
 #define EP_H_
 
-#include <stddef.h>
+#include <stdio.h>
 
 /// @brief maximal length of node variable name
 #define EP_NODE_VAR_MAX ((size_t)16)
@@ -111,11 +111,47 @@ EpNode * epNodeBinaryOperator( EpBinaryOperator op, EpNode *lhs, EpNode *rhs );
  */
 EpNode * epNodeUnaryOperator( EpUnaryOperator op, EpNode *operand );
 
-typedef enum __EpExpressionParsingStatus {
-    EP_EXPRESSION_PARSING_OK,
-    EP_EXPRESSION_PARSING_INTERNAL_ERROR,
-} EpExpressionParsingStatus;
+typedef enum __EpParseExpressionStatus {
+    EP_PARSE_EXPRESSION_OK,                      ///< 
+    EP_PARSE_EXPRESSION_INTERNAL_ERROR,          ///< 
+    EP_PARSE_EXPRESSION_UNKNOWN_BINARY_OPERATOR, ///< 
+    EP_PARSE_EXPRESSION_NO_CLOSING_BRACKET,      ///< 
+    EP_PARSE_EXPRESSION_TOO_LONG_VAR_NAME,       ///< 
+    EP_PARSE_EXPRESSION_UNKNOWN_EXPRESSION,      ///< 
+} EpParseExpressionStatus;
 
-EpExpressionParsingStatus epParseExpression( const char *str, EpNode **dst );
+/// @brief expression parsing result representaiton structure (tagged union)
+typedef struct __EpParseExpressionResult {
+    EpParseExpressionStatus status; ///< parsing status
+
+    union {
+        struct {
+            const char * rest;   ///< text remains
+            EpNode     * result; ///< resulting node
+        } ok; ///< operation succeeded
+
+        char unknownBinaryOperator; ///< unknown binary operator occured
+
+        struct {
+            const char *begin; ///< name begin
+            const char *end;   ///< name end (exclusive)
+        } tooLongVarName; ///< too long variable name occured
+    };
+} EpParseExpressionResult;
+
+/**
+ * @brief infix expression parsing function
+ * 
+ * @param[in] str text to parse
+ */
+EpParseExpressionResult epParseExpression( const char *str );
+
+/**
+ * @brief node as infix expression displaying function
+ * 
+ * @param[in,out] out  file to print expression to
+ * @param[in]     node node to display (non-null)
+ */
+void epPrintExpression( FILE *out, const EpNode *node );
 
 #endif // !defined(EP_H_)
