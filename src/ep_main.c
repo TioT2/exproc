@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 
 #include "ep.h"
 
@@ -28,15 +29,22 @@ int main( void ) {
     epPrintExpression(stdout, root);
     printf("\n");
 
+
     EpNode *rootDerivative = epNodeDerivative(root, "xy");
-    if (rootDerivative != NULL) {
-        printf("derivative: ");
-        epPrintExpression(stdout, rootDerivative);
-        printf("\n");
-        epNodeDtor(rootDerivative);
-    } else {
-        printf("Derivation failed");
-    }
+    assert(rootDerivative != NULL);
+
+    printf("derivative: ");
+    epPrintExpression(stdout, rootDerivative);
+    printf("\n");
+
+    EpNode *optimizedRootDerivative = epNodeOptimize(rootDerivative);
+
+    printf("optimized derivative: ");
+    epPrintExpression(stdout, optimizedRootDerivative);
+    printf("\n");
+
+    epNodeDtor(optimizedRootDerivative);
+    epNodeDtor(rootDerivative);
 
     {
         EpVariable varTable[] = {

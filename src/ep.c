@@ -6,8 +6,41 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
 #include "ep.h"
+
+bool epDoubleIsSame( double lhs, double rhs ) {
+    return abs(lhs - rhs) < EP_DOUBLE_EPSILON;
+} // epDoubleIsSame
+
+bool epNodeIsSame( const EpNode *lhs, const EpNode *rhs ) {
+    assert(lhs != NULL);
+    assert(rhs != NULL);
+
+    if (lhs->type != rhs->type)
+        return false;
+
+    switch (lhs->type) {
+    case EP_NODE_VARIABLE:
+        return strcmp(lhs->variable, rhs->variable) == 0;
+
+    case EP_NODE_CONSTANT:
+        return epDoubleIsSame(lhs->constant, rhs->constant);
+
+    case EP_NODE_BINARY_OPERATOR:
+        return true
+            && lhs->binaryOperator.op == rhs->binaryOperator.op
+            && epNodeIsSame(lhs->binaryOperator.lhs, rhs->binaryOperator.lhs)
+            && epNodeIsSame(lhs->binaryOperator.rhs, rhs->binaryOperator.rhs)
+        ;
+
+    case EP_NODE_UNARY_OPERATOR:
+        return lhs->unaryOperator.op == rhs->unaryOperator.op
+            && epNodeIsSame(lhs->unaryOperator.operand, rhs->unaryOperator.operand);
+    }
+} // epNodeIsSame
+
 
 EpNode * epNodeCopy( const EpNode *const node ) {
     assert(node != NULL);

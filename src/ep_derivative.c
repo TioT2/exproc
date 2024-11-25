@@ -29,8 +29,7 @@ bool epNodeDerivativeIsConstant( const EpNode *node, const char *var ) {
     case EP_NODE_UNARY_OPERATOR:
         return epNodeDerivativeIsConstant(node->unaryOperator.operand, var);
     }
-}
-
+} // epNodeDerivativeIsConstant
 
 EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
     assert(var != NULL);
@@ -66,35 +65,79 @@ EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
                 epNodeDerivative(rhs, var)
             );
 
-        case EP_BINARY_OPERATOR_MUL:
-            return EP_ADD(
-                EP_MUL(epNodeCopy(lhs), epNodeDerivative(rhs, var)),
-                EP_MUL(epNodeCopy(rhs), epNodeDerivative(lhs, var))
-            );
+        case EP_BINARY_OPERATOR_MUL: {
+            if (epNodeDerivativeIsConstant(lhs, var) || epNodeDerivativeIsConstant(rhs, var))
+                return EP_MUL(epNodeDerivative(lhs, var), epNodeDerivative(rhs, var));
+            else
+                return EP_ADD(
+                    EP_MUL(epNodeCopy(lhs), epNodeDerivative(rhs, var)),
+                    EP_MUL(epNodeCopy(rhs), epNodeDerivative(lhs, var))
+                );
+        }
 
         case EP_BINARY_OPERATOR_DIV:
-            return EP_DIV(
-                EP_SUB(
-                    EP_MUL(epNodeDerivative(lhs, var), epNodeCopy(rhs)),
-                    EP_MUL(epNodeDerivative(rhs, var), epNodeCopy(lhs))
-                ),
-                EP_MUL(epNodeCopy(rhs), epNodeCopy(rhs))
-            );
+            if (epNodeDerivativeIsConstant(rhs, var))
+                return EP_DIV(epNodeDerivative(lhs, var), epNodeCopy(rhs));
+            else
+                return EP_DIV(
+                    EP_SUB(
+                        EP_MUL(epNodeDerivative(lhs, var), epNodeCopy(rhs)),
+                        EP_MUL(epNodeDerivative(rhs, var), epNodeCopy(lhs))
+                    ),
+                    EP_MUL(epNodeCopy(rhs), epNodeCopy(rhs))
+                );
 
-        case EP_BINARY_OPERATOR_POW:
-            return EP_MUL(
-                EP_POW(epNodeCopy(lhs), epNodeCopy(rhs)),
-                EP_ADD(
-                    EP_MUL(epNodeDerivative(rhs, var), EP_LN(epNodeCopy(lhs))),
+        case EP_BINARY_OPERATOR_POW: {
+            bool lConst = epNodeDerivativeIsConstant(lhs, var);
+            bool rConst = epNodeDerivativeIsConstant(rhs, var);
+
+            if (!lConst && !rConst)
+                return EP_MUL(
+                    EP_POW(epNodeCopy(lhs), epNodeCopy(rhs)),
+                    EP_ADD(
+                        EP_MUL(epNodeDerivative(rhs, var), EP_LN(epNodeCopy(lhs))),
+                        EP_MUL(
+                            EP_DIV(epNodeDerivative(lhs, var), epNodeCopy(lhs)),
+                            epNodeCopy(rhs)
+                        )
+                    )
+                );
+
+            if (lConst && !rConst)
+                return EP_MUL(
                     EP_MUL(
-                        EP_DIV(epNodeDerivative(lhs, var), epNodeCopy(lhs)),
+                        epNodeDerivative(rhs, var),
+                        EP_LN(epNodeCopy(lhs))
+                    ),
+                    EP_POW(
+                        epNodeCopy(lhs),
                         epNodeCopy(rhs)
                     )
-                )
+                );
+
+            if (!lConst && rConst)
+                return EP_MUL(
+                    EP_MUL(
+                        epNodeCopy(rhs),
+                        epNodeDerivative(lhs, var)
+                    ),
+                    EP_POW(
+                        epNodeCopy(lhs),
+                        EP_SUB(epNodeCopy(rhs), EP_CONST(1.0))
+                    )
+                );
+
+            if (lConst && rConst)
+                return EP_POW(epNodeCopy(lhs), epNodeCopy(rhs));
+
+            assert(false &&
+                "All combinations of (bool, bool) pairs was checked in code above. "
+                "Looks like one of functions somehow returned invalid boolean."
             );
+            return NULL; // something defenetely got wrong
+        }
 
         }
-        break;
     }
 
     case EP_NODE_UNARY_OPERATOR: {
@@ -105,20 +148,18 @@ EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
             return EP_NEG(epNodeDerivative(op, var));
 
         case EP_UNARY_OPERATOR_SIN:
-            return EP_MUL(epNodeCopy(op), EP_COS(epNodeDerivative(op, var)));
+            return EP_MUL(epNodeDerivative(op, var), EP_COS(epNodeCopy(op)));
 
         case EP_UNARY_OPERATOR_COS:
-            return EP_MUL(epNodeCopy(op), EP_NEG(EP_SIN(epNodeDerivative(op, var))));
+            return EP_MUL(epNodeDerivative(op, var), EP_NEG(EP_SIN(epNodeCopy(op))));
 
         case EP_UNARY_OPERATOR_LN:
-            return EP_DIV(epNodeCopy(op), epNodeDerivative(op, var));
+            return EP_DIV(epNodeDerivative(op, var), epNodeCopy(op));
         }
     }
-
-
-        // panic in default?
-
     }
+
+    // panic here?
 } // epNodeDerivative
 
 // ep_derivative.c

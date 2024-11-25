@@ -11,6 +11,7 @@
 extern "C" {
 #endif
 
+/// shortened version of operations on nodes
 #ifdef _EP_NODE_SHORT_OPERATORS
     #define EP_ADD(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_ADD, (lhs), (rhs)))
     #define EP_SUB(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_SUB, (lhs), (rhs)))
@@ -26,6 +27,18 @@ extern "C" {
     #define EP_CONST(value) (epNodeConstant((value)))
     #define EP_VARIABLE(name) (epNodeVariable((name)))
 #endif
+
+#define EP_DOUBLE_EPSILON ((double)0.0000001)
+
+/**
+ * @brief double numbers equality checking function
+ * 
+ * @param[in] lhs left hand side
+ * @param[in] rhs right hand side
+ * 
+ * @return true if lhs and rhs are same in threshold, false otherwise
+ */
+bool epDoubleIsSame( double lhs, double rhs );
 
 /// @brief maximal length of node variable name
 #define EP_NODE_VAR_MAX ((size_t)16)
@@ -78,6 +91,16 @@ struct __EpNode {
         } unaryOperator;
     };
 }; // struct __EpNode
+
+/**
+ * @brief node comparison function
+ * 
+ * @param[in] lhs left hand side (non-null)
+ * @param[in] rhs right hand side (non-null)
+ * 
+ * @return true if nodes same, false if not.
+ */
+bool epNodeIsSame( const EpNode *lhs, const EpNode *rhs );
 
 /**
  * @brief node copying function
@@ -179,13 +202,23 @@ EpNodeComputeResult epNodeCompute(
     size_t             variableCount
 );
 
+/**
+ * @brief node optimization function
+ * 
+ * @param[in] node to optimize (nullable)
+ * 
+ * @return optimized node (may be null)
+ */
+EpNode * epNodeOptimize( const EpNode *node );
+
+/// @brief expression parsing status
 typedef enum __EpParseExpressionStatus {
-    EP_PARSE_EXPRESSION_OK,                      ///< 
-    EP_PARSE_EXPRESSION_INTERNAL_ERROR,          ///< 
-    EP_PARSE_EXPRESSION_UNKNOWN_BINARY_OPERATOR, ///< 
-    EP_PARSE_EXPRESSION_NO_CLOSING_BRACKET,      ///< 
-    EP_PARSE_EXPRESSION_TOO_LONG_VAR_NAME,       ///< 
-    EP_PARSE_EXPRESSION_UNKNOWN_EXPRESSION,      ///< 
+    EP_PARSE_EXPRESSION_OK,                      ///< parsing succeeded
+    EP_PARSE_EXPRESSION_INTERNAL_ERROR,          ///< internal error occured
+    EP_PARSE_EXPRESSION_UNKNOWN_BINARY_OPERATOR, ///< binary operator expected, smth invalid occured
+    EP_PARSE_EXPRESSION_NO_CLOSING_BRACKET,      ///< no closing bracket in binary operator
+    EP_PARSE_EXPRESSION_TOO_LONG_VAR_NAME,       ///< variable name exceeds EP_NODE_VAR_MAX
+    EP_PARSE_EXPRESSION_UNKNOWN_EXPRESSION,      ///< given text is not an expression
 } EpParseExpressionStatus;
 
 /// @brief expression parsing result representaiton structure (tagged union)

@@ -13,7 +13,7 @@ set(EP_LANGUAGE CXX)
 # set preferred C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
-file(GLOB_RECURSE source src/*.c)
+file(GLOB_RECURSE source CONFIGURE_DEPENDS src/*.c)
 
 set_source_files_properties(${source} PROPERTIES LANGUAGE ${EP_LANGUAGE})
 
