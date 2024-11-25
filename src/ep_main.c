@@ -16,7 +16,7 @@
 int main( void ) {
     EpNode *root = NULL;
     {
-        EpParseExpressionResult result = epParseExpression("-sin(xy^20.0e-1)");
+        EpParseExpressionResult result = epParseExpression("-sin(xy^2.0)");
         if (result.status != EP_PARSE_EXPRESSION_OK) {
             printf("Expression parsing failed.\n");
             return 1;
@@ -26,7 +26,7 @@ int main( void ) {
     }
 
     printf("function: ");
-    epPrintExpression(stdout, root);
+    epNodeDump(stdout, root, EP_DUMP_INFIX_EXPRESSION);
     printf("\n");
 
 
@@ -34,13 +34,13 @@ int main( void ) {
     assert(rootDerivative != NULL);
 
     printf("derivative: ");
-    epPrintExpression(stdout, rootDerivative);
+    epNodeDump(stdout, rootDerivative, EP_DUMP_INFIX_EXPRESSION);
     printf("\n");
 
     EpNode *optimizedRootDerivative = epNodeOptimize(rootDerivative);
 
     printf("optimized derivative: ");
-    epPrintExpression(stdout, optimizedRootDerivative);
+    epNodeDump(stdout, optimizedRootDerivative, EP_DUMP_TEX);
     printf("\n");
 
     epNodeDtor(optimizedRootDerivative);

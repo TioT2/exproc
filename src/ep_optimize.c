@@ -38,7 +38,7 @@ static EpNode * epOptimizedPow( EpNode *lhs, EpNode *rhs ) {
         return lhs;
     }
 
-    // check for rhs being integral constants
+    // check for rhs being constants
     if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
         epNodeDtor(lhs);
         epNodeDtor(rhs);
@@ -81,18 +81,18 @@ static EpNode * epOptimizedMul( EpNode *lhs, EpNode *rhs ) {
         return EP_CONST(0.0);
     }
 
-    if (epNodeIsSame(lhs, rhs)) {
-        epNodeDtor(rhs);
-        return EP_POW(lhs, EP_CONST(2.0));
-    }
-
-    // check for rhs being integral constants
+    // check for rhs being constants
     if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
         EpNode *result = EP_CONST(lhs->constant * rhs->constant);
 
         epNodeDtor(lhs);
         epNodeDtor(rhs);
         return result;
+    }
+
+    if (epNodeIsSame(lhs, rhs)) {
+        epNodeDtor(rhs);
+        return EP_POW(lhs, EP_CONST(2.0));
     }
 
     return EP_MUL(lhs, rhs);
@@ -105,13 +105,26 @@ static EpNode * epOptimizedDiv( EpNode *lhs, EpNode *rhs ) {
         return NULL;
     }
 
+    // check for rhs being zero
+    if (lhs->type == EP_NODE_CONSTANT && epDoubleIsSame(lhs->constant, 0.0)) {
+        epNodeDtor(lhs);
+        epNodeDtor(rhs);
+        return EP_CONST(0.0);
+    }
+
     // check for rhs being neutral element
     if (rhs->type == EP_NODE_CONSTANT && epDoubleIsSame(rhs->constant, 1.0)) {
         epNodeDtor(rhs);
         return lhs;
     }
 
-    // check for rhs being integral constants
+    if (epNodeIsSame(lhs, rhs)) {
+        epNodeDtor(lhs);
+        epNodeDtor(rhs);
+        return EP_CONST(1.0);
+    }
+
+    // check for rhs being constants
     if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
         EpNode *result = EP_CONST(lhs->constant / rhs->constant);
 
@@ -147,7 +160,7 @@ static EpNode * epOptimizedAdd( EpNode *lhs, EpNode *rhs ) {
         return epOptimizedMul(EP_CONST(2.0), lhs);
     }
 
-    // check for rhs being integral constants
+    // check for rhs being constants
     if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
         EpNode *result = EP_CONST(lhs->constant * rhs->constant);
 
@@ -178,7 +191,13 @@ static EpNode * epOptimizedSub( EpNode *lhs, EpNode *rhs ) {
         return lhs;
     }
 
-    // check for rhs being integral constants
+    if (epNodeIsSame(lhs, rhs)) {
+        epNodeDtor(lhs);
+        epNodeDtor(rhs);
+        return EP_CONST(0.0);
+    }
+
+    // check for rhs being constants
     if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
         EpNode *result = EP_CONST(lhs->constant - rhs->constant);
 

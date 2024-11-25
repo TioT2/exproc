@@ -60,6 +60,15 @@ typedef enum __EpBinaryOperator {
     EP_BINARY_OPERATOR_POW, ///< raising to a power
 } EpBinaryOperator;
 
+/**
+ * @brief binary operator priority getting function
+ * 
+ * @param[in] op binary operator to get priority of
+ * 
+ * @return operator priority
+ */
+int epBinaryOperatorGetPriority( EpBinaryOperator op );
+
 /// @brief unary operator representation enumeration
 typedef enum __EpUnaryOperator {
     EP_UNARY_OPERATOR_NEG, ///< negation
@@ -249,13 +258,21 @@ typedef struct __EpParseExpressionResult {
  */
 EpParseExpressionResult epParseExpression( const char *str );
 
+/// @brief dumping representation structure
+typedef enum __EpDumpFormat {
+    EP_DUMP_PARSED_EXPRESSION, ///< expression that can be by this project
+    EP_DUMP_INFIX_EXPRESSION,  ///< more 'general' expression format
+    EP_DUMP_TEX,               ///< TeX expression
+} EpDumpFormat;
+
 /**
- * @brief node as infix (that can be parsed by parser) expression displaying function
+ * @brief node dumping function
  * 
- * @param[in,out] out  file to print expression to
- * @param[in]     node node to display (non-null)
+ * @param[in,out] out    output file
+ * @param[in]     node   node to dump
+ * @param[in]     format dumping format
  */
-void epPrintExpression( FILE *out, const EpNode *node );
+void epNodeDump( FILE *out, const EpNode *node, EpDumpFormat format );
 
 #ifdef __cplusplus
 }

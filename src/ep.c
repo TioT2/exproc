@@ -203,4 +203,14 @@ EpNode * epNodeUnaryOperator( EpUnaryOperator op, EpNode *operand ) {
     return node;
 } // epNodeUnaryOperator
 
+int epBinaryOperatorGetPriority( EpBinaryOperator op ) {
+    switch (op) {
+    case EP_BINARY_OPERATOR_ADD: return 1;
+    case EP_BINARY_OPERATOR_SUB: return 1;
+    case EP_BINARY_OPERATOR_MUL: return 2;
+    case EP_BINARY_OPERATOR_DIV: return 2;
+    case EP_BINARY_OPERATOR_POW: return 3;
+    }
+} // epBinaryOperatorGetPriority
+
 // ep.c
