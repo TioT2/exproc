@@ -11,6 +11,22 @@
 extern "C" {
 #endif
 
+#ifdef _EP_NODE_SHORT_OPERATORS
+    #define EP_ADD(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_ADD, (lhs), (rhs)))
+    #define EP_SUB(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_SUB, (lhs), (rhs)))
+    #define EP_MUL(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_MUL, (lhs), (rhs)))
+    #define EP_DIV(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_DIV, (lhs), (rhs)))
+    #define EP_POW(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_POW, (lhs), (rhs)))
+
+    #define EP_SIN(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_SIN, (op)))
+    #define EP_COS(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_COS, (op)))
+    #define EP_NEG(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_NEG, (op)))
+    #define EP_LN(op)  (epNodeUnaryOperator(EP_UNARY_OPERATOR_LN , (op)))
+
+    #define EP_CONST(value) (epNodeConstant((value)))
+    #define EP_VARIABLE(name) (epNodeVariable((name)))
+#endif
+
 /// @brief maximal length of node variable name
 #define EP_NODE_VAR_MAX ((size_t)16)
 
@@ -22,18 +38,21 @@ typedef enum __EpNodeType {
     EP_NODE_UNARY_OPERATOR,  ///< unary operator
 } EpNodeType;
 
+/// @brief binary operator representation enumeration
 typedef enum __EpBinaryOperator {
-    EP_BINARY_OPERATOR_ADD,
-    EP_BINARY_OPERATOR_SUB,
-    EP_BINARY_OPERATOR_MUL,
-    EP_BINARY_OPERATOR_DIV,
-    EP_BINARY_OPERATOR_POW,
+    EP_BINARY_OPERATOR_ADD, ///< addition
+    EP_BINARY_OPERATOR_SUB, ///< substraction
+    EP_BINARY_OPERATOR_MUL, ///< multiplication
+    EP_BINARY_OPERATOR_DIV, ///< division
+    EP_BINARY_OPERATOR_POW, ///< raising to a power
 } EpBinaryOperator;
 
+/// @brief unary operator representation enumeration
 typedef enum __EpUnaryOperator {
-    EP_UNARY_OPERATOR_NEG,
-    EP_UNARY_OPERATOR_SIN,
-    EP_UNARY_OPERATOR_COS,
+    EP_UNARY_OPERATOR_NEG, ///< negation
+    EP_UNARY_OPERATOR_SIN, ///< sine
+    EP_UNARY_OPERATOR_COS, ///< cosine
+    EP_UNARY_OPERATOR_LN,  ///< natural logarithm
 } EpUnaryOperator;
 
 /// @brief node type forward declaration
@@ -114,6 +133,51 @@ EpNode * epNodeBinaryOperator( EpBinaryOperator op, EpNode *lhs, EpNode *rhs );
  * @return created node (null if allocation failed or operand is null)
  */
 EpNode * epNodeUnaryOperator( EpUnaryOperator op, EpNode *operand );
+
+/**
+ * @brief node derivative getting function
+ * 
+ * @param[in] node node to get derivative of (nullable)
+ * @param[in] var  variable to calculate derivative by (non-null)
+ * 
+ * @return derivative node pointer. (null if node is null)
+ */
+EpNode * epNodeDerivative( const EpNode *node, const char *var );
+
+/// @brief computation status
+typedef enum __EpNodeComputeStatus {
+    EP_NODE_COMPUTE_OK,               ///< computation succeeded
+    EP_NODE_COMPUTE_UNKNOWN_VARIABLE, ///< unknown variable reference occured
+} EpNodeComputeStatus;
+
+/// @brief node computation result (tagged union)
+typedef struct __EpNodeComputeResult {
+    EpNodeComputeStatus status; ///< compute status
+
+    union {
+        double      ok;              ///< computation result
+        const char *unknownVariable; ///< unknown variable
+    };
+} EpNodeComputeResult;
+
+/// @brief variable representation structure
+typedef struct __EpVariable {
+    const char * name;  ///< variable name
+    double       value; ///< variable current value
+} EpVariable;
+
+/**
+ * @brief node value computation function
+ * 
+ * @param[in] node          node to compute (non-null)
+ * @param[in] variables     variables used in computation array (non-null if variableCount != 0)
+ * @param[in] variableCount count of variables used in computation
+ */
+EpNodeComputeResult epNodeCompute(
+    const EpNode     * node,
+    const EpVariable * variables,
+    size_t             variableCount
+);
 
 typedef enum __EpParseExpressionStatus {
     EP_PARSE_EXPRESSION_OK,                      ///< 

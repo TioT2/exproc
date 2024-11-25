@@ -5,8 +5,9 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "ep.h"
 
@@ -99,38 +100,18 @@ EpParseExpressionResult epParseExpression( const char *str ) {
     }
 
     if (*str >= '0' && *str <= '9') {
-        uint64_t integer = *str - '0';
-        double fractional = 0.0;
-        str++;
+        char *end = NULL;
+        EpNode *result = epNodeConstant(strtod(str, &end));
 
-        while (*str >= '0' && *str <= '9') {
-            integer = integer * 10 + (*str - '0');
-            str++;
-        }
-
-        if (*str == '.') {
-            str++;
-            double fracExp = 1.0;
-
-            while (*str >= '0' && *str <= '9') {
-                fracExp *= 0.1;
-                fractional += fracExp * (double)(*str - '0');
-            }
-        }
-
-        // TODO Add exponent parsing support
-
-        EpNode *result = epNodeConstant(integer + fractional);
-
-        if (result == NULL) 
-            return (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_INTERNAL_ERROR };
-        return (EpParseExpressionResult) {
-            .status = EP_PARSE_EXPRESSION_OK,
-            .ok = {
-                .rest = str,
-                .result = result,
-            }
-        };
+        return result == NULL
+            ? (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_INTERNAL_ERROR }
+            : (EpParseExpressionResult) {
+                .status = EP_PARSE_EXPRESSION_OK,
+                .ok = {
+                    .rest = end,
+                    .result = result,
+                },
+            };
     }
 
     static const struct {
@@ -140,6 +121,7 @@ EpParseExpressionResult epParseExpression( const char *str ) {
         {"-",   EP_UNARY_OPERATOR_NEG},
         {"sin", EP_UNARY_OPERATOR_SIN},
         {"cos", EP_UNARY_OPERATOR_COS},
+        {"ln",  EP_UNARY_OPERATOR_LN },
     };
 
     for (uint32_t i = 0; i < sizeof(unaryOperators) / sizeof(unaryOperators[0]); i++) {

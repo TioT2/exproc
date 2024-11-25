@@ -27,6 +27,7 @@ void epPrintExpression( FILE *out, const EpNode *node ) {
         case EP_UNARY_OPERATOR_SIN: unaryOperatorText = "sin"; break;
         case EP_UNARY_OPERATOR_COS: unaryOperatorText = "cos"; break;
         case EP_UNARY_OPERATOR_NEG: unaryOperatorText =   "-"; break;
+        case EP_UNARY_OPERATOR_LN : unaryOperatorText =  "ln"; break;
         }
 
         fprintf(out, "%s ", unaryOperatorText);

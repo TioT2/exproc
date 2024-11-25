@@ -18,3 +18,4 @@ file(GLOB_RECURSE source src/*.c)
 set_source_files_properties(${source} PROPERTIES LANGUAGE ${EP_LANGUAGE})
 
 add_executable(exproc ${source})
+target_link_libraries(exproc m)
