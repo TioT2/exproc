@@ -3,7 +3,6 @@
  */
 
 #include <string.h>
-#include <stdbool.h>
 #include <assert.h>
 
 #define _EP_NODE_SHORT_OPERATORS

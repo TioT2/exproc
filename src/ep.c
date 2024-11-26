@@ -3,7 +3,7 @@
  */
 
 #include <stdlib.h>
-#include <stdbool.h>
+
 #include <string.h>
 #include <assert.h>
 #include <math.h>
@@ -11,7 +11,7 @@
 #include "ep.h"
 
 bool epDoubleIsSame( double lhs, double rhs ) {
-    return abs(lhs - rhs) < EP_DOUBLE_EPSILON;
+    return fabs(lhs - rhs) < EP_DOUBLE_EPSILON;
 } // epDoubleIsSame
 
 bool epNodeIsSame( const EpNode *lhs, const EpNode *rhs ) {

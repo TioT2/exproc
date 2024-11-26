@@ -6,6 +6,7 @@
 #define EP_H_
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
