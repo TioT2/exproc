@@ -213,4 +213,33 @@ int epBinaryOperatorGetPriority( EpBinaryOperator op ) {
     }
 } // epBinaryOperatorGetPriority
 
+const char * epNodeTypeStr( EpNodeType ty ) {
+    switch (ty) {
+    case EP_NODE_VARIABLE        : return "variable";
+    case EP_NODE_CONSTANT        : return "constant";
+    case EP_NODE_BINARY_OPERATOR : return "binary operator";
+    case EP_NODE_UNARY_OPERATOR  : return "unary operator";
+    }
+} // epNodeTypeStr
+
+const char * epBinaryOperatorStr( EpBinaryOperator op ) {
+    switch (op) {
+    case EP_BINARY_OPERATOR_ADD : return "+";
+    case EP_BINARY_OPERATOR_SUB : return "-";
+    case EP_BINARY_OPERATOR_MUL : return "*";
+    case EP_BINARY_OPERATOR_DIV : return "/";
+    case EP_BINARY_OPERATOR_POW : return "^";
+    }
+} // epBinaryOperatorStr
+
+const char * epUnaryOperatorStr( EpUnaryOperator op ) {
+    switch (op) {
+    case EP_UNARY_OPERATOR_NEG : return   "-";
+    case EP_UNARY_OPERATOR_SIN : return "sin";
+    case EP_UNARY_OPERATOR_COS : return "cos";
+    case EP_UNARY_OPERATOR_LN  : return  "ln";
+    }
+} // epUnaryOperatorStr
+
+
 // ep.c

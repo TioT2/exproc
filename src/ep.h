@@ -53,6 +53,15 @@ typedef enum __EpNodeType {
     EP_NODE_UNARY_OPERATOR,  ///< unary operator
 } EpNodeType;
 
+/**
+ * @brief node type corresponding string getting function
+ * 
+ * @param[in] ty node type
+ * 
+ * @return corresponding string
+ */
+const char * epNodeTypeStr( EpNodeType ty );
+
 /// @brief binary operator representation enumeration
 typedef enum __EpBinaryOperator {
     EP_BINARY_OPERATOR_ADD, ///< addition
@@ -61,6 +70,15 @@ typedef enum __EpBinaryOperator {
     EP_BINARY_OPERATOR_DIV, ///< division
     EP_BINARY_OPERATOR_POW, ///< raising to a power
 } EpBinaryOperator;
+
+/**
+ * @brief binary operator corresponding string getting function
+ * 
+ * @param[in] op binary operator
+ * 
+ * @return corresponding string
+ */
+const char * epBinaryOperatorStr( EpBinaryOperator op );
 
 /**
  * @brief binary operator priority getting function
@@ -78,6 +96,15 @@ typedef enum __EpUnaryOperator {
     EP_UNARY_OPERATOR_COS, ///< cosine
     EP_UNARY_OPERATOR_LN,  ///< natural logarithm
 } EpUnaryOperator;
+
+/**
+ * @brief unary operator corresponding string getting function
+ * 
+ * @param[in] op unary operator
+ * 
+ * @return corresponding string
+ */
+const char * epUnaryOperatorStr( EpUnaryOperator op );
 
 /// @brief node type forward declaration
 typedef struct __EpNode EpNode;
@@ -142,7 +169,7 @@ EpNode * epNodeConstant( double constant );
 /**
  * @brief variable node constructor
  * 
- * @param[in] varName variable name
+ * @param[in] varName variable name (non-null)
  * 
  * @return created node pointer (null if allocation failed or name is longer than EP_NODE_VAR_MAX - 1)
  */
@@ -152,8 +179,8 @@ EpNode * epNodeVariable( const char *varName );
  * @brief binary operator node constructor
  * 
  * @param[in] op  operator
- * @param[in] lhs left  hand side (created by node constructor)
- * @param[in] rhs right hand side (created by node constructor)
+ * @param[in] lhs left  hand side (nullable)
+ * @param[in] rhs right hand side (nullable)
  * 
  * @return created node pointer (NULL in case if allocation failed or either of lhs and rhs is NULL. In this case destructors for lhs and rhs are called.)
  */
@@ -163,19 +190,19 @@ EpNode * epNodeBinaryOperator( EpBinaryOperator op, EpNode *lhs, EpNode *rhs );
  * @brief unary operator node constructor
  * 
  * @param[in] op      unary operator
- * @param[in] operand operand expression
+ * @param[in] operand operand expression (nullable)
  * 
  * @return created node (null if allocation failed or operand is null)
  */
 EpNode * epNodeUnaryOperator( EpUnaryOperator op, EpNode *operand );
 
 /**
- * @brief node derivative getting function
+ * @brief node derivative calculation function
  * 
  * @param[in] node node to get derivative of (nullable)
  * @param[in] var  variable to calculate derivative by (non-null)
  * 
- * @return derivative node pointer. (null if node is null)
+ * @return derivative node pointer. (null if node is null or internal error occured)
  */
 EpNode * epNodeDerivative( const EpNode *node, const char *var );
 
@@ -299,6 +326,14 @@ typedef enum __EpDumpFormat {
  * @param[in] format dumping format
  */
 void epNodeDump( FILE *out, const EpNode *node, EpDumpFormat format );
+
+/**
+ * @brief node in dot format dumping function
+ * 
+ * @param[in] out  output file
+ * @param[in] node node to dump
+ */
+void epDbgNodeDumpDot( FILE *out, const EpNode *node );
 
 #ifdef __cplusplus
 }
