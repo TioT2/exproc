@@ -103,8 +103,8 @@ static bool epDumpUnaryOperandRequiresSurround( const EpNode *node ) {
 /**
  * @brief node in infix format dumping function
  * 
- * @param[in,out] out  file to dump to
- * @param[in]     node node to dump
+ * @param[in] out  file to dump to
+ * @param[in] node node to dump
  */
 static void epDumpInfixExpression( FILE *out, const EpNode *node ) {
     switch (node->type) {
@@ -164,8 +164,8 @@ static void epDumpInfixExpression( FILE *out, const EpNode *node ) {
 /**
  * @brief dumping to file in TeX format function
  * 
- * @param[in,out] out  file to dump to
- * @param[in]     node tree to dump
+ * @param[in] out  file to dump to
+ * @param[in] node tree to dump
  */
 static void epDumpTex( FILE *out, const EpNode *node ) {
     fprintf(out, "{");
@@ -184,32 +184,25 @@ static void epDumpTex( FILE *out, const EpNode *node ) {
 
     case EP_NODE_BINARY_OPERATOR: {
 
-        if (node->binaryOperator.op == EP_BINARY_OPERATOR_DIV) {
-            fprintf(out, "\\frac");
-            epDumpTex(out, node->binaryOperator.lhs);
-            epDumpTex(out, node->binaryOperator.rhs);
-        } else {
-            int priority = epBinaryOperatorGetPriority(node->binaryOperator.op);
-            bool surroundLhs = epDumpBinaryRequiresSurround(priority, node->binaryOperator.lhs);
-            bool surroundRhs = epDumpBinaryRequiresSurround(priority, node->binaryOperator.rhs);
+        int priority = epBinaryOperatorGetPriority(node->binaryOperator.op);
+        bool surroundLhs = epDumpBinaryRequiresSurround(priority, node->binaryOperator.lhs);
+        bool surroundRhs = epDumpBinaryRequiresSurround(priority, node->binaryOperator.rhs);
 
-            if (surroundLhs) fprintf(out, "(");
-            epDumpTex(out, node->binaryOperator.lhs);
-            if (surroundLhs) fprintf(out, ")");
+        if (surroundLhs) fprintf(out, "(");
+        epDumpTex(out, node->binaryOperator.lhs);
+        if (surroundLhs) fprintf(out, ")");
 
-            switch (node->binaryOperator.op) {
-            case EP_BINARY_OPERATOR_ADD: fprintf(out,      "+"); break;
-            case EP_BINARY_OPERATOR_SUB: fprintf(out,      "-"); break;
-            case EP_BINARY_OPERATOR_MUL: fprintf(out, "\\cdot"); break;
-            case EP_BINARY_OPERATOR_POW: fprintf(out,      "^"); break;
-
-            case EP_BINARY_OPERATOR_DIV: assert(false && "This case is unreachable");
-            }
-
-            if (surroundRhs) fprintf(out, "(");
-            epDumpTex(out, node->binaryOperator.rhs);
-            if (surroundRhs) fprintf(out, ")");
+        switch (node->binaryOperator.op) {
+        case EP_BINARY_OPERATOR_ADD: fprintf(out,      "+"); break;
+        case EP_BINARY_OPERATOR_SUB: fprintf(out,      "-"); break;
+        case EP_BINARY_OPERATOR_MUL: fprintf(out, "\\cdot"); break;
+        case EP_BINARY_OPERATOR_DIV: fprintf(out, "\\over"); break;
+        case EP_BINARY_OPERATOR_POW: fprintf(out,      "^"); break;
         }
+
+        if (surroundRhs) fprintf(out, "(");
+        epDumpTex(out, node->binaryOperator.rhs);
+        if (surroundRhs) fprintf(out, ")");
 
         break;
     }

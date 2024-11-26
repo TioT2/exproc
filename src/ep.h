@@ -178,6 +178,29 @@ EpNode * epNodeUnaryOperator( EpUnaryOperator op, EpNode *operand );
  */
 EpNode * epNodeDerivative( const EpNode *node, const char *var );
 
+/// @brief substitution representation structure
+typedef struct __EpSubstitution {
+    const char   * name; ///< substituted variable name
+    const EpNode * node; ///< node to substitute
+} EpSubstitution;
+
+/**
+ * @brief node variable substitution function
+ * 
+ * @param[in] node              node to substitute
+ * @param[in] substitutions     expression to substitute array
+ * @param[in] substitutionCount substitution array size
+ * 
+ * @note this functions performs single substitution step
+ * 
+ * @return node with substituted variables
+ */
+EpNode * epNodeSubstitute(
+    const EpNode         * node,
+    const EpSubstitution * substitutions,
+    size_t                 substitutionCount
+);
+
 /// @brief computation status
 typedef enum __EpNodeComputeStatus {
     EP_NODE_COMPUTE_OK,               ///< computation succeeded
@@ -270,9 +293,9 @@ typedef enum __EpDumpFormat {
 /**
  * @brief node dumping function
  * 
- * @param[in,out] out    output file
- * @param[in]     node   node to dump
- * @param[in]     format dumping format
+ * @param[in] out    output file
+ * @param[in] node   node to dump
+ * @param[in] format dumping format
  */
 void epNodeDump( FILE *out, const EpNode *node, EpDumpFormat format );
 
