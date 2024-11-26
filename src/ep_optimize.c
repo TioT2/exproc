@@ -10,7 +10,16 @@
 #define _EP_NODE_SHORT_OPERATORS
 #include "ep.h"
 
-
+/**
+ * @brief raising to a power optimization function
+ * 
+ * @param[in] lhs left operand (nullable)
+ * @param[in] rhs right operand (nullable)
+ * 
+ * @note operands assumed to be already optimal
+ * 
+ * @return created node
+ */
 static EpNode * epOptimizedPow( EpNode *lhs, EpNode *rhs ) {
     if (lhs == NULL || rhs == NULL) {
         epNodeDtor(lhs);
@@ -48,6 +57,16 @@ static EpNode * epOptimizedPow( EpNode *lhs, EpNode *rhs ) {
     return EP_POW(lhs, rhs);
 } // epOptimizedPow
 
+/**
+ * @brief multiplication optimization function
+ * 
+ * @param[in] lhs left operand (nullable)
+ * @param[in] rhs right operand (nullable)
+ * 
+ * @note operands assumed to be already optimal
+ * 
+ * @return created node
+ */
 static EpNode * epOptimizedMul( EpNode *lhs, EpNode *rhs ) {
     if (lhs == NULL || rhs == NULL) {
         epNodeDtor(lhs);
@@ -98,6 +117,16 @@ static EpNode * epOptimizedMul( EpNode *lhs, EpNode *rhs ) {
     return EP_MUL(lhs, rhs);
 } // epOptimizedMul
 
+/**
+ * @brief division optimization function
+ * 
+ * @param[in] lhs left operand (nullable)
+ * @param[in] rhs right operand (nullable)
+ * 
+ * @note operands assumed to be already optimal
+ * 
+ * @return created node
+ */
 static EpNode * epOptimizedDiv( EpNode *lhs, EpNode *rhs ) {
     if (lhs == NULL || rhs == NULL) {
         epNodeDtor(lhs);
@@ -136,6 +165,16 @@ static EpNode * epOptimizedDiv( EpNode *lhs, EpNode *rhs ) {
     return EP_DIV(lhs, rhs);
 } // epOptimizedDiv
 
+/**
+ * @brief addition optimization function
+ * 
+ * @param[in] lhs left operand (nullable)
+ * @param[in] rhs right operand (nullable)
+ * 
+ * @note operands assumed to be already optimal
+ * 
+ * @return created node
+ */
 static EpNode * epOptimizedAdd( EpNode *lhs, EpNode *rhs ) {
     if (lhs == NULL || rhs == NULL) {
         epNodeDtor(lhs);
@@ -172,6 +211,16 @@ static EpNode * epOptimizedAdd( EpNode *lhs, EpNode *rhs ) {
     return EP_ADD(lhs, rhs);
 } // epOptimizedAdd
 
+/**
+ * @brief substraction optimization function
+ * 
+ * @param[in] lhs left operand (nullable)
+ * @param[in] rhs right operand (nullable)
+ * 
+ * @note operands assumed to be already optimal
+ * 
+ * @return created node
+ */
 static EpNode * epOptimizedSub( EpNode *lhs, EpNode *rhs ) {
     if (lhs == NULL || rhs == NULL) {
         epNodeDtor(lhs);

@@ -28,6 +28,7 @@ extern "C" {
     #define EP_VARIABLE(name) (epNodeVariable((name)))
 #endif
 
+/// @brief double comparison epsilon
 #define EP_DOUBLE_EPSILON ((double)0.0000001)
 
 /**
@@ -86,6 +87,7 @@ struct __EpNode {
 
     union {
         char variable[EP_NODE_VAR_MAX]; ///< variable node name
+
         double constant;                ///< constnat node
 
         struct {

@@ -6,6 +6,12 @@
 
 #include "ep.h"
 
+/**
+ * @brief expression dumping in parsable format function
+ * 
+ * @param[in] out  file to dump to
+ * @param[in] node node to dump
+ */
 static void epDumpParsedExpression( FILE *out, const EpNode *node ) {
     assert(node != NULL);
 
@@ -56,6 +62,14 @@ static void epDumpParsedExpression( FILE *out, const EpNode *node ) {
     }
 } // epDumpParsedExpression
 
+/**
+ * @brief do this part requires bracket surround or not
+ * 
+ * @param[in] currentPriority current priority
+ * @param[in] node            node to surround (or not)
+ * 
+ * @return true if surrounding required, false if not
+ */
 static bool epDumpBinaryRequiresSurround( int currentPriorirty, const EpNode *node ) {
     return true
         && node->type == EP_NODE_BINARY_OPERATOR
@@ -63,6 +77,13 @@ static bool epDumpBinaryRequiresSurround( int currentPriorirty, const EpNode *no
     ;
 } // epDumpBinaryRequiresSurround
 
+/**
+ * @brief checking if unary operator requires surround
+ * 
+ * @param[in] node node to check
+ * 
+ * @return true if requires, false if not
+ */
 static bool epDumpUnaryOperandRequiresSurround( const EpNode *node ) {
     assert(node->type == EP_NODE_UNARY_OPERATOR);
 
@@ -79,6 +100,12 @@ static bool epDumpUnaryOperandRequiresSurround( const EpNode *node ) {
     return !notRequires;
 } // epDumpUnaryOperandRequiresSurround
 
+/**
+ * @brief node in infix format dumping function
+ * 
+ * @param[in,out] out  file to dump to
+ * @param[in]     node node to dump
+ */
 static void epDumpInfixExpression( FILE *out, const EpNode *node ) {
     switch (node->type) {
     case EP_NODE_VARIABLE:
@@ -134,6 +161,12 @@ static void epDumpInfixExpression( FILE *out, const EpNode *node ) {
     }
 } // epDumpInfixExpression
 
+/**
+ * @brief dumping to file in TeX format function
+ * 
+ * @param[in,out] out  file to dump to
+ * @param[in]     node tree to dump
+ */
 static void epDumpTex( FILE *out, const EpNode *node ) {
     fprintf(out, "{");
 

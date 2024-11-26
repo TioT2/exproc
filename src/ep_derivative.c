@@ -9,7 +9,15 @@
 #define _EP_NODE_SHORT_OPERATORS
 #include "ep.h"
 
-bool epNodeDerivativeIsConstant( const EpNode *node, const char *var ) {
+/**
+ * @brief is this node constant for differentiation checking function
+ * 
+ * @param[in] node node to check
+ * @param[in] var  variable
+ * 
+ * @return true if node is constant, false if not
+ */
+static bool epNodeDerivativeIsConstant( const EpNode *node, const char *var ) {
     assert(node != NULL);
     assert(var != NULL);
 

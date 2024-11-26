@@ -40,8 +40,8 @@ EpParseExpressionResult epParseExpression( const char *str ) {
         str = epParseSkipSpaces(lhs.ok.rest);
 
         static const struct {
-            char name;
-            EpBinaryOperator op;
+            char             name; ///< corresponding character
+            EpBinaryOperator op;   ///< binary operator
         } binaryOperators[] = {
             {'+', EP_BINARY_OPERATOR_ADD},
             {'-', EP_BINARY_OPERATOR_SUB},
