@@ -27,16 +27,7 @@ static void epDumpParsedExpression( FILE *out, const EpNode *node ) {
     }
 
     case EP_NODE_UNARY_OPERATOR: {
-        const char *unaryOperatorText = "";
-
-        switch (node->unaryOperator.op) {
-        case EP_UNARY_OPERATOR_SIN: unaryOperatorText = "sin"; break;
-        case EP_UNARY_OPERATOR_COS: unaryOperatorText = "cos"; break;
-        case EP_UNARY_OPERATOR_NEG: unaryOperatorText =   "-"; break;
-        case EP_UNARY_OPERATOR_LN : unaryOperatorText =  "ln"; break;
-        }
-
-        fprintf(out, "%s ", unaryOperatorText);
+        fprintf(out, "%s ", epUnaryOperatorStr(node->unaryOperator.op));
         epDumpParsedExpression(out, node->unaryOperator.operand);
         break;
     }
@@ -147,12 +138,7 @@ static void epDumpInfixExpression( FILE *out, const EpNode *node ) {
     case EP_NODE_UNARY_OPERATOR: {
         bool surround = epDumpUnaryOperandRequiresSurround(node);
 
-        switch (node->unaryOperator.op) {
-        case EP_UNARY_OPERATOR_NEG : fprintf(out,   "-"); break;
-        case EP_UNARY_OPERATOR_SIN : fprintf(out, "sin"); break;
-        case EP_UNARY_OPERATOR_COS : fprintf(out, "cos"); break;
-        case EP_UNARY_OPERATOR_LN  : fprintf(out,  "ln"); break;
-        }
+        fprintf(out, "%s", epUnaryOperatorStr(node->unaryOperator.op));
         if (surround) fprintf(out, "(");
         epDumpInfixExpression(out, node->unaryOperator.operand);
         if (surround) fprintf(out, ")");
@@ -210,12 +196,7 @@ static void epDumpTex( FILE *out, const EpNode *node ) {
     case EP_NODE_UNARY_OPERATOR: {
         bool surround = epDumpUnaryOperandRequiresSurround(node);
 
-        switch (node->unaryOperator.op) {
-        case EP_UNARY_OPERATOR_NEG : fprintf(out,   "-"); break;
-        case EP_UNARY_OPERATOR_SIN : fprintf(out, "sin"); break;
-        case EP_UNARY_OPERATOR_COS : fprintf(out, "cos"); break;
-        case EP_UNARY_OPERATOR_LN  : fprintf(out,  "ln"); break;
-        }
+        fprintf(out, "%s", epUnaryOperatorStr(node->unaryOperator.op));
         if (surround) fprintf(out, "(");
         epDumpTex(out, node->unaryOperator.operand);
         if (surround) fprintf(out, ")");

@@ -234,12 +234,46 @@ const char * epBinaryOperatorStr( EpBinaryOperator op ) {
 
 const char * epUnaryOperatorStr( EpUnaryOperator op ) {
     switch (op) {
-    case EP_UNARY_OPERATOR_NEG : return   "-";
-    case EP_UNARY_OPERATOR_SIN : return "sin";
-    case EP_UNARY_OPERATOR_COS : return "cos";
-    case EP_UNARY_OPERATOR_LN  : return  "ln";
+        case EP_UNARY_OPERATOR_LN   : return     "ln";
+        case EP_UNARY_OPERATOR_NEG  : return      "-";
+
+        case EP_UNARY_OPERATOR_SIN  : return    "sin";
+        case EP_UNARY_OPERATOR_COS  : return    "cos";
+        case EP_UNARY_OPERATOR_TAN  : return     "tg";
+        case EP_UNARY_OPERATOR_COT  : return    "ctg";
+
+        case EP_UNARY_OPERATOR_ASIN : return "arcsin";
+        case EP_UNARY_OPERATOR_ACOS : return "arccos";
+        case EP_UNARY_OPERATOR_ATAN : return  "arctg";
+        case EP_UNARY_OPERATOR_ACOT : return "arcctg";
     }
 } // epUnaryOperatorStr
 
+double epUnaryOperatorApply( EpUnaryOperator op, double operand ) {
+    switch (op) {
+    case EP_UNARY_OPERATOR_NEG: return -operand;
+    case EP_UNARY_OPERATOR_LN : return log(operand);
+
+    case EP_UNARY_OPERATOR_SIN: return sin(operand);
+    case EP_UNARY_OPERATOR_COS: return cos(operand);
+    case EP_UNARY_OPERATOR_TAN: return tan(operand);
+    case EP_UNARY_OPERATOR_COT: return 1.0 / tan(operand);
+
+    case EP_UNARY_OPERATOR_ASIN: return asin(operand);
+    case EP_UNARY_OPERATOR_ACOS: return acos(operand);
+    case EP_UNARY_OPERATOR_ATAN: return atan(operand);
+    case EP_UNARY_OPERATOR_ACOT: return atan(-operand) + M_PI_2;
+    }
+} // epUnaryOperatorApply
+
+double epBinaryOperatorApply( EpBinaryOperator op, double lhs, double rhs ) {
+    switch (op) {
+    case EP_BINARY_OPERATOR_ADD: return lhs + rhs;
+    case EP_BINARY_OPERATOR_SUB: return lhs - rhs;
+    case EP_BINARY_OPERATOR_MUL: return lhs * rhs;
+    case EP_BINARY_OPERATOR_DIV: return lhs / rhs;
+    case EP_BINARY_OPERATOR_POW: return pow(lhs, rhs);
+    }
+} // epBinaryOperatorApply
 
 // ep.c

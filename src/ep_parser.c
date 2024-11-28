@@ -113,20 +113,24 @@ EpParseExpressionResult epParseExpression( const char *str ) {
             };
     }
 
-    static const struct {
-        const char *name;
-        EpUnaryOperator op;
-    } unaryOperators[] = {
-        {"-",   EP_UNARY_OPERATOR_NEG},
-        {"sin", EP_UNARY_OPERATOR_SIN},
-        {"cos", EP_UNARY_OPERATOR_COS},
-        {"ln",  EP_UNARY_OPERATOR_LN },
+    EpUnaryOperator unaryOperators[] = {
+        EP_UNARY_OPERATOR_NEG,
+        EP_UNARY_OPERATOR_LN,
+        EP_UNARY_OPERATOR_SIN,
+        EP_UNARY_OPERATOR_COS,
+        EP_UNARY_OPERATOR_TAN,
+        EP_UNARY_OPERATOR_COT,
+        EP_UNARY_OPERATOR_ASIN,
+        EP_UNARY_OPERATOR_ACOS,
+        EP_UNARY_OPERATOR_ATAN,
+        EP_UNARY_OPERATOR_ACOT,
     };
 
     for (uint32_t i = 0; i < sizeof(unaryOperators) / sizeof(unaryOperators[0]); i++) {
-        const size_t nameLength = strlen(unaryOperators[i].name);
+        const char *name = epUnaryOperatorStr(unaryOperators[i]);
+        const size_t nameLength = strlen(name);
 
-        if (strncmp(str, unaryOperators[i].name, nameLength) == 0) {
+        if (strncmp(str, name, nameLength) == 0) {
             str += nameLength;
 
             EpParseExpressionResult operandParsingResult = epParseExpression(str);
@@ -135,7 +139,7 @@ EpParseExpressionResult epParseExpression( const char *str ) {
                 return operandParsingResult;
             str = operandParsingResult.ok.rest;
 
-            EpNode *result = epNodeUnaryOperator(unaryOperators[i].op, operandParsingResult.ok.result);
+            EpNode *result = epNodeUnaryOperator(unaryOperators[i], operandParsingResult.ok.result);
 
             if (result == NULL)
                 return (EpParseExpressionResult) { .status = EP_PARSE_EXPRESSION_INTERNAL_ERROR };

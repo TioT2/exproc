@@ -9,6 +9,66 @@
 
 #include "ep.h"
 
+/// @brief string slice representation structure
+typedef struct __EplStr {
+    const char *begin; ///< 
+    const char *end;   ///< 
+} EplStr;
+
+typedef struct __EplParser {
+    EplStr rest; ///< rest of text to parse
+} EplParser;
+
+/// @brief expression union tag
+typedef enum __EplExpressionType {
+    EPL_EXPR_BIND,       ///< assignment
+    EPL_EXPR_SUB,        ///< substitution
+    EPL_EXPR_DERIVATIVE, ///< derivative
+    EPL_EXPR_SHOW,       ///< display
+    EPL_EXPR_SEQUENCE,   ///< expression sequence
+} EplExpressionType;
+
+// forward declaration
+typedef struct __EplExpression EplExpression;
+
+/// @brief expression representation structure
+struct __EplExpression {
+    EplExpressionType type; ///< expression type
+
+    union {
+
+        struct {
+            char            varName[EP_NODE_VAR_MAX]; ///< variable to bind in
+            EplExpression * expression;               ///< expression to bind
+        } bind;
+
+        struct {
+            char   varName[EP_NODE_VAR_MAX]; ///< variable name
+            size_t substitutionCount;
+        } sub;
+
+        struct {
+            EpNode * expr;                     ///< expression
+            char     varName[EP_NODE_VAR_MAX]; ///< name of variable to get 
+        } derivative;
+
+        struct {
+            EplExpression * expressions;     ///< expression array
+            size_t          expressionCount; ///< count of expressions in sequence
+        } sequence;
+
+        struct {
+            EplExpression *expr; ///< expression to show
+        } show;
+    };
+}; // struct __EplExpression
+
+/// @brief binding representation structure
+typedef struct __EplBinding {
+    char     name[EP_NODE_VAR_MAX]; ///< binding name
+    EpNode * expression;            ///< expression
+} EplBinding;
+
 /**
  * @brief main project function
  * 
@@ -17,7 +77,7 @@
 int main( void ) {
     EpNode *root = NULL;
     {
-        EpParseExpressionResult result = epParseExpression("-(sin(xy^2.0) / t)");
+        EpParseExpressionResult result = epParseExpression("arctg (xy ^ 2)");
         if (result.status != EP_PARSE_EXPRESSION_OK) {
             printf("Expression parsing failed.\n");
             return 1;
@@ -40,7 +100,7 @@ int main( void ) {
     EpNode *optimizedRootDerivative = epNodeOptimize(rootDerivative);
 
     printf("optimized derivative: ");
-    epNodeDump(stdout, optimizedRootDerivative, EP_DUMP_TEX);
+    epNodeDump(stdout, optimizedRootDerivative, EP_DUMP_INFIX_EXPRESSION);
     printf("\n");
 
     epNodeDtor(optimizedRootDerivative);

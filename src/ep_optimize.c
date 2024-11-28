@@ -46,13 +46,6 @@ static EpNode * epOptimizedPow( EpNode *lhs, EpNode *rhs ) {
         return lhs;
     }
 
-    // check for rhs being constants
-    if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
-        epNodeDtor(lhs);
-        epNodeDtor(rhs);
-        return EP_CONST(pow(lhs->constant, rhs->constant));
-    }
-
     return EP_POW(lhs, rhs);
 } // epOptimizedPow
 
@@ -99,15 +92,6 @@ static EpNode * epOptimizedMul( EpNode *lhs, EpNode *rhs ) {
         return EP_CONST(0.0);
     }
 
-    // check for rhs being constants
-    if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
-        EpNode *result = EP_CONST(lhs->constant * rhs->constant);
-
-        epNodeDtor(lhs);
-        epNodeDtor(rhs);
-        return result;
-    }
-
     if (epNodeIsSame(lhs, rhs)) {
         epNodeDtor(rhs);
         return EP_POW(lhs, EP_CONST(2.0));
@@ -152,15 +136,6 @@ static EpNode * epOptimizedDiv( EpNode *lhs, EpNode *rhs ) {
         return EP_CONST(1.0);
     }
 
-    // check for rhs being constants
-    if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
-        EpNode *result = EP_CONST(lhs->constant / rhs->constant);
-
-        epNodeDtor(lhs);
-        epNodeDtor(rhs);
-        return result;
-    }
-
     return EP_DIV(lhs, rhs);
 } // epOptimizedDiv
 
@@ -196,15 +171,6 @@ static EpNode * epOptimizedAdd( EpNode *lhs, EpNode *rhs ) {
     if (epNodeIsSame(lhs, rhs)) {
         epNodeDtor(rhs);
         return epOptimizedMul(EP_CONST(2.0), lhs);
-    }
-
-    // check for rhs being constants
-    if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
-        EpNode *result = EP_CONST(lhs->constant * rhs->constant);
-
-        epNodeDtor(lhs);
-        epNodeDtor(rhs);
-        return result;
     }
 
     return EP_ADD(lhs, rhs);
@@ -245,15 +211,6 @@ static EpNode * epOptimizedSub( EpNode *lhs, EpNode *rhs ) {
         return EP_CONST(0.0);
     }
 
-    // check for rhs being constants
-    if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT) {
-        EpNode *result = EP_CONST(lhs->constant - rhs->constant);
-
-        epNodeDtor(lhs);
-        epNodeDtor(rhs);
-        return result;
-    }
-
     return EP_SUB(lhs, rhs);
 } // epOptimizedMul
 
@@ -267,6 +224,9 @@ EpNode * epNodeOptimize( const EpNode *node ) {
         EpNode *lhs = epNodeOptimize(node->binaryOperator.lhs);
         EpNode *rhs = epNodeOptimize(node->binaryOperator.rhs);
 
+        if (lhs->type == EP_NODE_CONSTANT && rhs->type == EP_NODE_CONSTANT)
+            return EP_CONST(epBinaryOperatorApply(node->binaryOperator.op, lhs->constant, rhs->constant));
+
         switch (node->binaryOperator.op) {
         case EP_BINARY_OPERATOR_ADD: return epOptimizedAdd(lhs, rhs);
         case EP_BINARY_OPERATOR_SUB: return epOptimizedSub(lhs, rhs);
@@ -279,53 +239,27 @@ EpNode * epNodeOptimize( const EpNode *node ) {
     case EP_NODE_UNARY_OPERATOR: {
         EpNode *op = epNodeOptimize(node->unaryOperator.operand);
 
+        if (op->type == EP_NODE_CONSTANT) {
+            EpNode *result = EP_CONST(epUnaryOperatorApply(node->unaryOperator.op, op->constant));
+            epNodeDtor(op);
+            return result;
+        }
+
         switch (node->unaryOperator.op) {
-        case EP_UNARY_OPERATOR_NEG: {
-            if (op->type == EP_NODE_CONSTANT) {
-                EpNode *result = EP_CONST(-op->constant);
-
-                epNodeDtor(op);
-                return result;
-            }
-
-            return EP_NEG(op);
-        }
-
-        case EP_UNARY_OPERATOR_SIN: {
-            if (op->type == EP_NODE_CONSTANT) {
-                EpNode *result = EP_CONST(sin(op->constant));
-
-                epNodeDtor(op);
-                return result;
-            }
-
-            return EP_SIN(op);
-        }
-
-        case EP_UNARY_OPERATOR_COS: {
-            if (op->type == EP_NODE_CONSTANT) {
-                EpNode *result = EP_CONST(cos(op->constant));
-
-                epNodeDtor(op);
-                return result;
-            }
-
-            return EP_COS(op);
-        }
-
-        case EP_UNARY_OPERATOR_LN: {
-            if (op->type == EP_NODE_CONSTANT) {
-                EpNode *result = EP_CONST(log(op->constant));
-
-                epNodeDtor(op);
-                return result;
-            }
-
-            return EP_LN(op);
-        }
+        case EP_UNARY_OPERATOR_NEG : return EP_NEG(op);
+        case EP_UNARY_OPERATOR_LN  : return EP_LN(op);
+        case EP_UNARY_OPERATOR_SIN : return EP_SIN(op);
+        case EP_UNARY_OPERATOR_COS : return EP_COS(op);
+        case EP_UNARY_OPERATOR_TAN : return EP_TAN(op);
+        case EP_UNARY_OPERATOR_COT : return EP_COT(op);
+        case EP_UNARY_OPERATOR_ASIN : return EP_ASIN(op);
+        case EP_UNARY_OPERATOR_ACOS : return EP_ACOS(op);
+        case EP_UNARY_OPERATOR_ATAN : return EP_ATAN(op);
+        case EP_UNARY_OPERATOR_ACOT : return EP_ACOT(op);
         }
     }
     }
 } // epNodeOptimize
 
 // ep_optimize.c
+

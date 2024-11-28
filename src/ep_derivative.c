@@ -148,20 +148,63 @@ EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
     }
 
     case EP_NODE_UNARY_OPERATOR: {
-        const EpNode *op = node->unaryOperator.operand;
+        const EpNode *operand = node->unaryOperator.operand;
+        EpNode *derivative = epNodeDerivative(operand, var);
 
         switch (node->unaryOperator.op) {
         case EP_UNARY_OPERATOR_NEG:
-            return EP_NEG(epNodeDerivative(op, var));
-
-        case EP_UNARY_OPERATOR_SIN:
-            return EP_MUL(epNodeDerivative(op, var), EP_COS(epNodeCopy(op)));
-
-        case EP_UNARY_OPERATOR_COS:
-            return EP_MUL(epNodeDerivative(op, var), EP_NEG(EP_SIN(epNodeCopy(op))));
+            return EP_NEG(derivative);
 
         case EP_UNARY_OPERATOR_LN:
-            return EP_DIV(epNodeDerivative(op, var), epNodeCopy(op));
+            return EP_DIV(derivative, epNodeCopy(operand));
+
+        case EP_UNARY_OPERATOR_SIN:
+            return EP_MUL(derivative, EP_COS(epNodeCopy(operand)));
+
+        case EP_UNARY_OPERATOR_COS:
+            return EP_MUL(derivative, EP_NEG(EP_SIN(epNodeCopy(operand))));
+
+        case EP_UNARY_OPERATOR_TAN:
+            return EP_DIV(derivative, EP_POW(EP_COS(epNodeCopy(operand)), EP_CONST(2.0)));
+
+        case EP_UNARY_OPERATOR_COT:
+            return EP_DIV(EP_NEG(derivative), EP_POW(EP_SIN(epNodeCopy(operand)), EP_CONST(2.0)));
+
+        case EP_UNARY_OPERATOR_ASIN:
+            return EP_DIV(
+                derivative,
+                EP_POW(
+                    EP_SUB(EP_CONST(1.0), EP_POW(epNodeCopy(operand), EP_CONST(2.0))),
+                    EP_CONST(0.5)
+                )
+            );
+
+        case EP_UNARY_OPERATOR_ACOS:
+            return EP_DIV(
+                EP_NEG(derivative),
+                EP_POW(
+                    EP_SUB(EP_CONST(1.0), EP_POW(epNodeCopy(operand), EP_CONST(2.0))),
+                    EP_CONST(0.5)
+                )
+            );
+
+        case EP_UNARY_OPERATOR_ATAN:
+            return EP_DIV(
+                derivative,
+                EP_ADD(
+                    EP_CONST(1.0),
+                    EP_POW(epNodeCopy(operand), EP_CONST(2.0))
+                )
+            );
+
+        case EP_UNARY_OPERATOR_ACOT:
+            return EP_DIV(
+                EP_NEG(derivative),
+                EP_ADD(
+                    EP_CONST(1.0),
+                    EP_POW(epNodeCopy(operand), EP_CONST(2.0))
+                )
+            );
         }
     }
     }

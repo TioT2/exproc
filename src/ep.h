@@ -20,10 +20,18 @@ extern "C" {
     #define EP_DIV(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_DIV, (lhs), (rhs)))
     #define EP_POW(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_POW, (lhs), (rhs)))
 
-    #define EP_SIN(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_SIN, (op)))
-    #define EP_COS(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_COS, (op)))
     #define EP_NEG(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_NEG, (op)))
     #define EP_LN(op)  (epNodeUnaryOperator(EP_UNARY_OPERATOR_LN , (op)))
+
+    #define EP_SIN(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_SIN, (op)))
+    #define EP_COS(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_COS, (op)))
+    #define EP_TAN(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_TAN, (op)))
+    #define EP_COT(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_COT, (op)))
+
+    #define EP_ASIN(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_ASIN, (op)))
+    #define EP_ACOS(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_ACOS, (op)))
+    #define EP_ATAN(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_ATAN, (op)))
+    #define EP_ACOT(op) (epNodeUnaryOperator(EP_UNARY_OPERATOR_ACOT, (op)))
 
     #define EP_CONST(value) (epNodeConstant((value)))
     #define EP_VARIABLE(name) (epNodeVariable((name)))
@@ -89,12 +97,31 @@ const char * epBinaryOperatorStr( EpBinaryOperator op );
  */
 int epBinaryOperatorGetPriority( EpBinaryOperator op );
 
+/**
+ * @brief binary operator apply function
+ * 
+ * @param[in] op  binary operator
+ * @param[in] lhs left hand side
+ * @param[in] rhs right hand side
+ * 
+ * @return result of applying op on lhs and rhs.
+ */
+double epBinaryOperatorApply( EpBinaryOperator op, double lhs, double rhs );
+
 /// @brief unary operator representation enumeration
 typedef enum __EpUnaryOperator {
     EP_UNARY_OPERATOR_NEG, ///< negation
+    EP_UNARY_OPERATOR_LN,  ///< natural logarithm
+
     EP_UNARY_OPERATOR_SIN, ///< sine
     EP_UNARY_OPERATOR_COS, ///< cosine
-    EP_UNARY_OPERATOR_LN,  ///< natural logarithm
+    EP_UNARY_OPERATOR_TAN, ///< tangent
+    EP_UNARY_OPERATOR_COT, ///< cotangent
+
+    EP_UNARY_OPERATOR_ASIN, ///< arcsine
+    EP_UNARY_OPERATOR_ACOS, ///< arccosine
+    EP_UNARY_OPERATOR_ATAN, ///< arctangent
+    EP_UNARY_OPERATOR_ACOT, ///< arccotangent
 } EpUnaryOperator;
 
 /**
@@ -105,6 +132,16 @@ typedef enum __EpUnaryOperator {
  * @return corresponding string
  */
 const char * epUnaryOperatorStr( EpUnaryOperator op );
+
+/**
+ * @brief unary operator apply function
+ * 
+ * @param[in] op      unary operator
+ * @param[in] operand operand
+ * 
+ * @return result of applying 'op' operator on operand.
+ */
+double epUnaryOperatorApply( EpUnaryOperator op, double operand );
 
 /// @brief node type forward declaration
 typedef struct __EpNode EpNode;
