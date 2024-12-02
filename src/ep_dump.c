@@ -7,53 +7,6 @@
 #include "ep.h"
 
 /**
- * @brief expression dumping in parsable format function
- * 
- * @param[in] out  file to dump to
- * @param[in] node node to dump
- */
-static void epDumpParsedExpression( FILE *out, const EpNode *node ) {
-    assert(node != NULL);
-
-    switch (node->type) {
-    case EP_NODE_CONSTANT: {
-        fprintf(out, "%lf", node->constant);
-        break;
-    }
-
-    case EP_NODE_VARIABLE: {
-        fprintf(out, "%s", node->variable);
-        break;
-    }
-
-    case EP_NODE_UNARY_OPERATOR: {
-        fprintf(out, "%s ", epUnaryOperatorStr(node->unaryOperator.op));
-        epDumpParsedExpression(out, node->unaryOperator.operand);
-        break;
-    }
-
-    case EP_NODE_BINARY_OPERATOR: {
-        const char *binaryOperatorText = "";
-
-        switch (node->binaryOperator.op) {
-        case EP_BINARY_OPERATOR_ADD: binaryOperatorText = "+"; break;
-        case EP_BINARY_OPERATOR_SUB: binaryOperatorText = "-"; break;
-        case EP_BINARY_OPERATOR_MUL: binaryOperatorText = "*"; break;
-        case EP_BINARY_OPERATOR_DIV: binaryOperatorText = "/"; break;
-        case EP_BINARY_OPERATOR_POW: binaryOperatorText = "^"; break;
-        }
-
-        fprintf(out, "(");
-        epDumpParsedExpression(out, node->binaryOperator.lhs);
-        fprintf(out, " %s ", binaryOperatorText);
-        epDumpParsedExpression(out, node->binaryOperator.rhs);
-        fprintf(out, ")");
-        break;
-    }
-    }
-} // epDumpParsedExpression
-
-/**
  * @brief do this part requires bracket surround or not
  * 
  * @param[in] currentPriority current priority
@@ -212,7 +165,6 @@ void epNodeDump( FILE *out, const EpNode *node, EpDumpFormat format ) {
     assert(node != NULL);
 
     switch (format) {
-    case EP_DUMP_PARSED_EXPRESSION: epDumpParsedExpression(out, node); break;
     case EP_DUMP_INFIX_EXPRESSION : epDumpInfixExpression (out, node); break;
     case EP_DUMP_TEX              : epDumpTex             (out, node); break;
     }

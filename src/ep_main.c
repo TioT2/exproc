@@ -77,7 +77,7 @@ typedef struct __EplBinding {
 int main( void ) {
     EpNode *root = NULL;
     {
-        EpParseExpressionResult result = epParseExpression("arctg (xy ^ 2)");
+        EpParseExpressionResult result = epParseExpression("cos x / 1");
         if (result.status != EP_PARSE_EXPRESSION_OK) {
             printf("Expression parsing failed.\n");
             return 1;

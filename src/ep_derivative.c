@@ -73,8 +73,10 @@ EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
             );
 
         case EP_BINARY_OPERATOR_MUL: {
-            if (epNodeDerivativeIsConstant(lhs, var) || epNodeDerivativeIsConstant(rhs, var))
-                return EP_MUL(epNodeDerivative(lhs, var), epNodeDerivative(rhs, var));
+            if (epNodeDerivativeIsConstant(lhs, var))
+                return EP_MUL(epNodeCopy(lhs), epNodeDerivative(rhs, var));
+            else if (epNodeDerivativeIsConstant(rhs, var))
+                return EP_MUL(epNodeCopy(rhs), epNodeDerivative(lhs, var));
             else
                 return EP_ADD(
                     EP_MUL(epNodeCopy(lhs), epNodeDerivative(rhs, var)),

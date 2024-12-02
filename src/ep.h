@@ -12,6 +12,12 @@
 extern "C" {
 #endif
 
+/**
+ * Short info about used macro definitions.
+ * 
+ * _EP_NODE_SHORT_OPERATORS - enables short wrappers around operator create functions
+ */
+
 /// shortened version of operations on nodes
 #ifdef _EP_NODE_SHORT_OPERATORS
     #define EP_ADD(lhs, rhs) (epNodeBinaryOperator(EP_BINARY_OPERATOR_ADD, (lhs), (rhs)))
@@ -35,7 +41,7 @@ extern "C" {
 
     #define EP_CONST(value) (epNodeConstant((value)))
     #define EP_VARIABLE(name) (epNodeVariable((name)))
-#endif
+#endif // defined(_EP_NODE_SHORT_OPERATORS)
 
 /// @brief double comparison epsilon
 #define EP_DOUBLE_EPSILON ((double)0.0000001)
@@ -312,12 +318,14 @@ EpNode * epNodeOptimize( const EpNode *node );
 
 /// @brief expression parsing status
 typedef enum __EpParseExpressionStatus {
-    EP_PARSE_EXPRESSION_OK,                      ///< parsing succeeded
-    EP_PARSE_EXPRESSION_INTERNAL_ERROR,          ///< internal error occured
-    EP_PARSE_EXPRESSION_UNKNOWN_BINARY_OPERATOR, ///< binary operator expected, smth invalid occured
-    EP_PARSE_EXPRESSION_NO_CLOSING_BRACKET,      ///< no closing bracket in binary operator
-    EP_PARSE_EXPRESSION_TOO_LONG_VAR_NAME,       ///< variable name exceeds EP_NODE_VAR_MAX
-    EP_PARSE_EXPRESSION_UNKNOWN_EXPRESSION,      ///< given text is not an expression
+    EP_PARSE_EXPRESSION_OK,                               ///< parsing succeeded
+    EP_PARSE_EXPRESSION_INTERNAL_ERROR,                   ///< internal error occured
+    EP_PARSE_EXPRESSION_NO_CLOSING_BRACKET,               ///< no closing bracket in binary operator
+    EP_PARSE_EXPRESSION_TOO_LONG_VAR_NAME,                ///< variable name exceeds EP_NODE_VAR_MAX
+    EP_PARSE_EXPRESSION_UNKNOWN_TOKEN,                    ///< given text is not an expression
+    EP_PARSE_EXPRESSION_NO_END,                           ///< expression end expected
+    EP_PARSE_EXPRESSION_UNEXPECTED_EXPRESSION_END,        ///< unexpected expression end
+    EP_PARSE_EXPRESSION_NUMBER_IDENT_OR_BRACKET_EXPECTED, ///< number or ident expected
 } EpParseExpressionStatus;
 
 /// @brief expression parsing result representaiton structure (tagged union)
@@ -350,7 +358,6 @@ EpParseExpressionResult epParseExpression( const char *str );
 
 /// @brief dumping representation structure
 typedef enum __EpDumpFormat {
-    EP_DUMP_PARSED_EXPRESSION, ///< expression that can be by this project
     EP_DUMP_INFIX_EXPRESSION,  ///< more 'general' expression format
     EP_DUMP_TEX,               ///< TeX expression
 } EpDumpFormat;
