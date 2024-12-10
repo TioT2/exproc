@@ -128,10 +128,11 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
     fprintf(out, "\\usepackage{graphicx}\n");
     fprintf(out, "\\usepackage{pgfplots}\n");
     fprintf(out, "\\usepackage{tikz}\n");
-    fprintf(out, "\\title{test}\n");
+    fprintf(out, "\\title{Function exploration}\n");
     fprintf(out, "\\author{Tio 4112}\n");
-    fprintf(out, "\\date{November 2024}\n");
+    fprintf(out, "\\date{December 2024}\n");
     fprintf(out, "\\begin{document}\n");
+    fprintf(out, "\\maketitle\n");
 
     fprintf(out, "\\section{Introduction}\n");
     if (node == NULL) {
@@ -156,7 +157,7 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
         size_t substitutionCount = 0;
 
         EpNode *zero = epNodeConstant(0.0);
-        EpNode *one = epNodeConstant(1.0);
+        EpNode *subConst = epNodeConstant(2.5);
         EpNode *tVar = epNodeVariable("t");
 
         // substitute taylor series
@@ -166,7 +167,7 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
 
             s->node = i == j
                 ? tVar
-                : one;
+                : subConst;
         }
 
 
@@ -183,8 +184,8 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
         epNodeDtor(derivativeByParamInit);
 
         // calculate taylor series
-        EpNode *taylorSeries[16] = {NULL};
-        const size_t taylorSeriesSize = 16;
+        EpNode *taylorSeries[8] = {NULL};
+        const size_t taylorSeriesSize = 8;
 
         for (size_t i = 0; i < taylorSeriesSize; i++) {
             EpNode *taylorInit = epNodeTaylor(substituted, "t", zero, i + 1);
@@ -192,7 +193,7 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
             epNodeDtor(taylorInit);
         }
 
-        fprintf(out, "With one substituted to parameters except \"%s\" (renamed to \"t\"): $$", param);
+        fprintf(out, "With %lf substituted to parameters except \"%s\" (renamed to \"t\"): $$", subConst->constant, param);
         epNodeDump(out, substituted, EP_DUMP_TEX);
         fprintf(out, "$$\n");
 
@@ -233,7 +234,7 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
         for (size_t i = 0; i < taylorSeriesSize; i++)
             epNodeDtor(taylorSeries[i]);
         epNodeDtor(zero);
-        epNodeDtor(one);
+        epNodeDtor(subConst);
         epNodeDtor(tVar);
     }
 

@@ -78,7 +78,7 @@ int main( void ) {
 
     EpNode *root = NULL;
     {
-        EpParseExpressionResult result = epParseExpression("cos(x) * cos(y) + z");
+        EpParseExpressionResult result = epParseExpression("sin(x) * cos(y) + z ^ w");
         if (result.status != EP_PARSE_EXPRESSION_OK) {
             printf("Expression parsing failed.\n");
             return 1;
