@@ -75,9 +75,10 @@ typedef struct __EplBinding {
  * @return exit status
  */
 int main( void ) {
+
     EpNode *root = NULL;
     {
-        EpParseExpressionResult result = epParseExpression("cos x / 1");
+        EpParseExpressionResult result = epParseExpression("cos(x) * cos(y) + z");
         if (result.status != EP_PARSE_EXPRESSION_OK) {
             printf("Expression parsing failed.\n");
             return 1;
@@ -85,7 +86,9 @@ int main( void ) {
 
         root = result.ok.result;
     }
+    epNodeGenNodeFunctionInfo(stdout, root);
 
+#if 0
     printf("function: ");
     epNodeDump(stdout, root, EP_DUMP_INFIX_EXPRESSION);
     printf("\n");
@@ -143,6 +146,7 @@ int main( void ) {
     }
 
     epNodeDtor(root);
+#endif
     return 0;
 } // main
 

@@ -249,6 +249,23 @@ EpNode * epNodeUnaryOperator( EpUnaryOperator op, EpNode *operand );
  */
 EpNode * epNodeDerivative( const EpNode *node, const char *var );
 
+/**
+ * @brief node by taylor series approximation getting function
+ * 
+ * @param[in] node  node to unfold
+ * @param[in] var   variable
+ * @param[in] point point to unfold in taylor series around
+ * @param[in] count count of sum participants
+ * 
+ * @return approximation function
+ */
+EpNode * epNodeTaylor(
+    const EpNode * node,
+    const char   * var,
+    const EpNode * point,
+    unsigned int   count
+);
+
 /// @brief substitution representation structure
 typedef struct __EpSubstitution {
     const char   * name; ///< substituted variable name
@@ -370,6 +387,14 @@ typedef enum __EpDumpFormat {
  * @param[in] format dumping format
  */
 void epNodeDump( FILE *out, const EpNode *node, EpDumpFormat format );
+
+/**
+ * @brief TeX graph from node generation function
+ * 
+ * @param[in] out  text file to generate grpah text to
+ * @param[in] node node to generate TeX graph for
+ */
+void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node );
 
 /**
  * @brief node in dot format dumping function

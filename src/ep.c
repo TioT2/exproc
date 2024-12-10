@@ -234,18 +234,18 @@ const char * epBinaryOperatorStr( EpBinaryOperator op ) {
 
 const char * epUnaryOperatorStr( EpUnaryOperator op ) {
     switch (op) {
-        case EP_UNARY_OPERATOR_LN   : return     "ln";
-        case EP_UNARY_OPERATOR_NEG  : return      "-";
+        case EP_UNARY_OPERATOR_LN   : return   "ln";
+        case EP_UNARY_OPERATOR_NEG  : return    "-";
 
-        case EP_UNARY_OPERATOR_SIN  : return    "sin";
-        case EP_UNARY_OPERATOR_COS  : return    "cos";
-        case EP_UNARY_OPERATOR_TAN  : return     "tg";
-        case EP_UNARY_OPERATOR_COT  : return    "ctg";
+        case EP_UNARY_OPERATOR_SIN  : return  "sin";
+        case EP_UNARY_OPERATOR_COS  : return  "cos";
+        case EP_UNARY_OPERATOR_TAN  : return  "tan";
+        case EP_UNARY_OPERATOR_COT  : return  "cot";
 
-        case EP_UNARY_OPERATOR_ASIN : return "arcsin";
-        case EP_UNARY_OPERATOR_ACOS : return "arccos";
-        case EP_UNARY_OPERATOR_ATAN : return  "arctg";
-        case EP_UNARY_OPERATOR_ACOT : return "arcctg";
+        case EP_UNARY_OPERATOR_ASIN : return "asin";
+        case EP_UNARY_OPERATOR_ACOS : return "acos";
+        case EP_UNARY_OPERATOR_ATAN : return "atan";
+        case EP_UNARY_OPERATOR_ACOT : return "acot";
     }
 } // epUnaryOperatorStr
 
