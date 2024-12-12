@@ -120,6 +120,8 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
     const char *parameters[64] = {NULL};
     size_t parameterCount = 0;
     EpNode *nodeOptimized = epNodeOptimize(node);
+    EpNode *zero = epNodeConstant(0.0);
+    EpNode *tVar = epNodeVariable("t");
 
     // get node function parameters
     epNodeGenNodeGetFunctionParameters(nodeOptimized, parameters, &parameterCount, 64);
@@ -135,7 +137,7 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
     fprintf(out, "\\maketitle\n");
 
     fprintf(out, "\\section{Introduction}\n");
-    if (node == NULL) {
+    if (node == NULL || zero == NULL || tVar == NULL) {
         fprintf(out, "Internal error occured...\n");
         goto __epNodeGenNodeFunctionInfo__end;
     }
@@ -156,9 +158,7 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
         EpSubstitution substitutions[64] = {};
         size_t substitutionCount = 0;
 
-        EpNode *zero = epNodeConstant(0.0);
         EpNode *subConst = epNodeConstant(2.5);
-        EpNode *tVar = epNodeVariable("t");
 
         // substitute taylor series
         for (size_t j = 0; j < parameterCount; j++) {
@@ -233,13 +233,13 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
         epNodeDtor(derivativeByParam);
         for (size_t i = 0; i < taylorSeriesSize; i++)
             epNodeDtor(taylorSeries[i]);
-        epNodeDtor(zero);
         epNodeDtor(subConst);
-        epNodeDtor(tVar);
     }
 
 __epNodeGenNodeFunctionInfo__end:
 
+    epNodeDtor(zero);
+    epNodeDtor(tVar);
     epNodeDtor(nodeOptimized);
     fprintf(out, "\\end{document}");
 } // epNodeGenNodeFunctionInfo

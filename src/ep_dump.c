@@ -38,6 +38,8 @@ static bool epDumpUnaryOperandRequiresSurround( const EpNode *node ) {
                 && epBinaryOperatorGetPriority(node->unaryOperator.operand->binaryOperator.op)
                     > epBinaryOperatorGetPriority(EP_BINARY_OPERATOR_ADD)
             || node->unaryOperator.operand->type == EP_NODE_UNARY_OPERATOR
+            || node->unaryOperator.operand->type == EP_NODE_CONSTANT
+            || node->unaryOperator.operand->type == EP_NODE_VARIABLE
         )
     ;
 
