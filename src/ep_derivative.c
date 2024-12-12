@@ -39,12 +39,6 @@ static bool epNodeDerivativeIsConstant( const EpNode *node, const char *var ) {
 } // epNodeDerivativeIsConstant
 
 EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
-    // custom syntax highlight?
-#define _DL_ (epNodeDerivative(lhs, var))
-#define _DR_ (epNodeDerivative(lhs, var))
-#define _L_ (epNodeCopy(lhs))
-#define _R_ (epNodeCopy(rhs))
-
     assert(var != NULL);
 
     if (node == NULL)
@@ -67,64 +61,83 @@ EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
 
         switch (node->binaryOperator.op) {
         case EP_BINARY_OPERATOR_ADD:
-            return EP_ADD(_DL_, _DR_);
+            return EP_ADD(
+                epNodeDerivative(lhs, var),
+                epNodeDerivative(rhs, var)
+            );
 
         case EP_BINARY_OPERATOR_SUB:
-            return EP_SUB(_DL_, _DR_);
+            return EP_SUB(
+                epNodeDerivative(lhs, var),
+                epNodeDerivative(rhs, var)
+            );
 
         case EP_BINARY_OPERATOR_MUL: {
             if (epNodeDerivativeIsConstant(lhs, var))
-                return EP_MUL(_L_, _DR_);
+                return EP_MUL(epNodeCopy(lhs), epNodeDerivative(rhs, var));
             else if (epNodeDerivativeIsConstant(rhs, var))
-                return EP_MUL(_R_, _DL_);
+                return EP_MUL(epNodeCopy(rhs), epNodeDerivative(lhs, var));
             else
                 return EP_ADD(
-                    EP_MUL(_L_, _DR_),
-                    EP_MUL(_R_, _DL_)
+                    EP_MUL(epNodeCopy(lhs), epNodeDerivative(rhs, var)),
+                    EP_MUL(epNodeCopy(rhs), epNodeDerivative(lhs, var))
                 );
         }
 
         case EP_BINARY_OPERATOR_DIV:
             if (epNodeDerivativeIsConstant(rhs, var))
-                return EP_DIV(_DL_, _R_);
+                return EP_DIV(epNodeDerivative(lhs, var), epNodeCopy(rhs));
             else
                 return EP_DIV(
                     EP_SUB(
-                        EP_MUL(_DL_, _R_),
-                        EP_MUL(_DR_, _L_)
+                        EP_MUL(epNodeDerivative(lhs, var), epNodeCopy(rhs)),
+                        EP_MUL(epNodeDerivative(rhs, var), epNodeCopy(lhs))
                     ),
-                    EP_MUL(_R_, _R_)
+                    EP_MUL(epNodeCopy(rhs), epNodeCopy(rhs))
                 );
 
         case EP_BINARY_OPERATOR_POW: {
             bool lConst = epNodeDerivativeIsConstant(lhs, var);
             bool rConst = epNodeDerivativeIsConstant(rhs, var);
 
-            if (!lConst && !rConst) {
+            if (!lConst && !rConst)
                 return EP_MUL(
-                    EP_POW(_L_, _R_),
+                    EP_POW(epNodeCopy(lhs), epNodeCopy(rhs)),
                     EP_ADD(
-                        EP_MUL(_DR_, EP_LN(_L_)),
-                        EP_MUL(EP_DIV(_DL_, _L_), _R_)
+                        EP_MUL(epNodeDerivative(rhs, var), EP_LN(epNodeCopy(lhs))),
+                        EP_MUL(
+                            EP_DIV(epNodeDerivative(lhs, var), epNodeCopy(lhs)),
+                            epNodeCopy(rhs)
+                        )
                     )
                 );
-            }
 
             if (lConst && !rConst)
                 return EP_MUL(
-                    EP_MUL(_DR_, EP_LN(_L_)),
-                    EP_POW(_L_, _R_)
+                    EP_MUL(
+                        epNodeDerivative(rhs, var),
+                        EP_LN(epNodeCopy(lhs))
+                    ),
+                    EP_POW(
+                        epNodeCopy(lhs),
+                        epNodeCopy(rhs)
+                    )
                 );
 
             if (!lConst && rConst)
                 return EP_MUL(
-                    EP_MUL(_R_, _DL_),
-                    EP_POW(_L_, EP_SUB(_R_, EP_CONST(1.0))
+                    EP_MUL(
+                        epNodeCopy(rhs),
+                        epNodeDerivative(lhs, var)
+                    ),
+                    EP_POW(
+                        epNodeCopy(lhs),
+                        EP_SUB(epNodeCopy(rhs), EP_CONST(1.0))
                     )
                 );
 
             if (lConst && rConst)
-                return EP_POW(_L_, _R_);
+                return EP_POW(epNodeCopy(lhs), epNodeCopy(rhs));
 
             assert(false &&
                 "All combinations of (bool, bool) pairs was checked in code above. "
@@ -199,10 +212,6 @@ EpNode * epNodeDerivative( const EpNode *node, const char *var ) {
     }
 
     // panic here?
-#undef _DL_
-#undef _DR_
-#undef _L_
-#undef _R_
 } // epNodeDerivative
 
 // ep_derivative.c
