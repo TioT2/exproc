@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#define _EP_NODE_SHORT_OPERATORS
 #include "ep.h"
 
 /// @brief string slice representation structure
@@ -87,13 +88,13 @@ int main( void ) {
         root = result.ok.result;
     }
     epNodeGenNodeFunctionInfo(stdout, root);
+    return 0;
 
-#if 0
     printf("function: ");
     epNodeDump(stdout, root, EP_DUMP_INFIX_EXPRESSION);
     printf("\n");
 
-    EpNode *rootDerivative = epNodeDerivative(root, "xy");
+    EpNode *rootDerivative = epNodeDerivative(root, "x");
     assert(rootDerivative != NULL);
 
     printf("derivative: ");
@@ -106,12 +107,13 @@ int main( void ) {
     epNodeDump(stdout, optimizedRootDerivative, EP_DUMP_INFIX_EXPRESSION);
     printf("\n");
 
+
     epNodeDtor(optimizedRootDerivative);
     epNodeDtor(rootDerivative);
 
     {
         EpSubstitution substs[] = {
-            {"xy", epNodeConstant(sqrt(3.14159265 / 2.0))},
+            {"x", epNodeConstant(sqrt(3.14159265 / 2.0))},
         };
         EpNode *result = epNodeSubstitute(root, substs, 1);
         assert(result != NULL);
@@ -138,7 +140,7 @@ int main( void ) {
 
     {
         EpVariable varTable[] = {
-            {"xy", sqrt(3.14159265 / 2.0)},
+            {"x", sqrt(3.14159265 / 2.0)},
         };
         EpNodeComputeResult result = epNodeCompute(root, varTable, 1);
         if (result.status == EP_NODE_COMPUTE_OK)
@@ -146,7 +148,6 @@ int main( void ) {
     }
 
     epNodeDtor(root);
-#endif
     return 0;
 } // main
 
