@@ -26,7 +26,10 @@ EpNode * epNodeTaylor(
     const EpNode * point,
     unsigned int   count
 ) {
-    EpSubstitution varSubstitution = { .name = var, .node = point };
+    EpSubstitution varSubstitution = {
+        .name = var,
+        .node = point
+    };
 
     EpNode *lhs = epNodeSubstitute(node, &varSubstitution, 1);
     EpNode *derivative = epNodeCopy(node);
@@ -34,6 +37,9 @@ EpNode * epNodeTaylor(
     for (unsigned int i = 0; i < count; i++) {
         // calculate next derivative
         derivative = epNodeDerivative(derivative, var);
+        EpNode *optDerivative = epNodeOptimize(derivative);
+        epNodeDtor(derivative);
+        derivative = optDerivative;
 
         // add next taylor series participant
         lhs = EP_ADD(

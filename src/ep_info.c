@@ -184,8 +184,8 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
         epNodeDtor(derivativeByParamInit);
 
         // calculate taylor series
-        EpNode *taylorSeries[8] = {NULL};
-        const size_t taylorSeriesSize = 8;
+        EpNode *taylorSeries[6] = {NULL};
+        const size_t taylorSeriesSize = 6;
 
         for (size_t i = 0; i < taylorSeriesSize; i++) {
             EpNode *taylorInit = epNodeTaylor(substituted, "t", zero, i + 1);
@@ -203,6 +203,7 @@ void epNodeGenNodeFunctionInfo( FILE *out, const EpNode *node ) {
 
         fprintf(out, "Taylor expansion around 0: $$");
         epNodeDump(out, taylorSeries[taylorSeriesSize - 1], EP_DUMP_TEX);
+        fprintf(out, "+ o(t^%zu)", taylorSeriesSize + 1);
         fprintf(out, "$$\n");
 
         // graphs

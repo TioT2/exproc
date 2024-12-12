@@ -73,13 +73,23 @@ typedef struct __EplBinding {
 /**
  * @brief main project function
  * 
+ * @param[in] argc argument count
+ * @param[in] argv argument values
+ * 
  * @return exit status
  */
-int main( void ) {
+int main( const int argc, const char **argv ) {
+    const char *expr = "sin(x ^ 2) + 1";
+    if (argc <= 1) {
+        printf("usage: ./exproc [expression to explore]\n");
+        return 0;
+    } else {
+        expr = argv[1];
+    }
 
     EpNode *root = NULL;
     {
-        EpParseExpressionResult result = epParseExpression("sin(x) * cos(y) + z ^ w");
+        EpParseExpressionResult result = epParseExpression(expr);
         if (result.status != EP_PARSE_EXPRESSION_OK) {
             printf("Expression parsing failed.\n");
             return 1;
@@ -90,6 +100,7 @@ int main( void ) {
     epNodeGenNodeFunctionInfo(stdout, root);
     return 0;
 
+#if 0
     printf("function: ");
     epNodeDump(stdout, root, EP_DUMP_INFIX_EXPRESSION);
     printf("\n");
@@ -149,6 +160,7 @@ int main( void ) {
 
     epNodeDtor(root);
     return 0;
+#endif
 } // main
 
 // ep_main.c
