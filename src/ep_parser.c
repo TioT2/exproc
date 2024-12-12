@@ -172,8 +172,7 @@ static bool epParsePower( EpParser *const self, EpNode **dst );
  * 
  * @return true if parsed successfully, false if not.
  */
-static bool epParseExpression( EpParser *const self, EpNode **dst );
-
+static bool epParseExpressionImpl( EpParser *const self, EpNode **dst );
 
 
 bool epParseSum( EpParser *const self, EpNode **dst ) {
@@ -259,7 +258,7 @@ bool epParseProduct( EpParser *const self, EpNode **dst ) {
 bool epParsePower( EpParser *const self, EpNode **dst ) {
     EpNode *lhs = NULL;
 
-    if (!epParseExpression(self, &lhs))
+    if (!epParseExpressionImpl(self, &lhs))
         return false;
 
     for (;;) {
@@ -275,7 +274,7 @@ bool epParsePower( EpParser *const self, EpNode **dst ) {
 
         // parse rhs
         EpNode *rhs = NULL;
-        if (!epParseExpression(self, &rhs)) {
+        if (!epParseExpressionImpl(self, &rhs)) {
             epNodeDtor(lhs);
             return false;
         }
@@ -290,7 +289,7 @@ bool epParsePower( EpParser *const self, EpNode **dst ) {
     }
 } // epParsePower
 
-bool epParseExpression( EpParser *const self, EpNode **dst ) {
+bool epParseExpressionImpl( EpParser *const self, EpNode **dst ) {
     EpNode *result = NULL;
 
     EpUnaryOperator unaryOperator = EP_UNARY_OPERATOR_ACOS;
